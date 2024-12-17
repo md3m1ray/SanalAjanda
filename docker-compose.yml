@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfıle
+      dockerfile: Dockerfile
     env_file:
       - sanalAjanda/docker.env
     volumes:
