@@ -3,8 +3,11 @@
 
 {% include 'includes/head.html' with title='Sanal Ajanda' %}
 
-<body>
+{%  block extra_head %}
+{% endblock %}
 
+<body class="index-page">
+  <main class="main">
 {% include 'includes/navbar.html' %}
 
 <div class="container">
@@ -14,12 +17,12 @@
     {% endblock %}
 
 </div>
-
+{% include 'includes/footer.html' %}
 {% include 'includes/scripts.html' %}
 
 {%block extra_scripts%}
 
 {%endblock%}
-
+  </main>
 </body>
 </html>
