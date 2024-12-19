@@ -18,9 +18,9 @@
                     <h1 data-aos="fade-up">{{ hero_title }}</h1>
                     <p data-aos="fade-up" data-aos-delay="100">{{ hero_description }}</p>
                     <div class="d-flex flex-column flex-md-row" data-aos="fade-up" data-aos-delay="200">
-                        <a href="{{ get_started_btn_link }}" class="btn-get-started">{{ get_started_btn_text }}<i
+                        <a href="{% url get_started_btn_link %}" class="btn-get-started">{{ get_started_btn_text }}<i
                                 class="bi bi-arrow-right"></i></a>
-                        <a href="{{ watch_video_btn_link }}https://www.youtube.com/watch?v=Y7f98aduVJ8"
+                        <a href="{{ watch_video_btn_link }}"
                            class="glightbox btn-watch-video d-flex align-items-center justify-content-center ms-0 ms-md-4 mt-4 mt-md-0"><i
                                 class="bi bi-play-circle"></i><span>{{ watch_video_btn_text }}</span></a>
                     </div>
@@ -44,9 +44,9 @@
                     <div class="stats-item d-flex align-items-center w-100 h-100">
                         <i class="bi bi-emoji-smile color-blue flex-shrink-0"></i>
                         <div>
-                            <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1"
+                            <span data-purecounter-start="0" data-purecounter-end="{{ stats_member_num }}" data-purecounter-duration="1"
                                   class="purecounter"></span>
-                            <p>Happy Clients</p>
+                            <p>{{ stats_member_text }}</p>
                         </div>
                     </div>
                 </div><!-- End Stats Item -->
@@ -55,9 +55,9 @@
                     <div class="stats-item d-flex align-items-center w-100 h-100">
                         <i class="bi bi-journal-richtext color-orange flex-shrink-0" style="color: #ee6c20;"></i>
                         <div>
-                            <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1"
+                            <span data-purecounter-start="0" data-purecounter-end="{{ stats_days_num }}" data-purecounter-duration="1"
                                   class="purecounter"></span>
-                            <p>Projects</p>
+                            <p>{{ stats_days_text }}</p>
                         </div>
                     </div>
                 </div><!-- End Stats Item -->
@@ -66,9 +66,9 @@
                     <div class="stats-item d-flex align-items-center w-100 h-100">
                         <i class="bi bi-headset color-green flex-shrink-0" style="color: #15be56;"></i>
                         <div>
-                            <span data-purecounter-start="0" data-purecounter-end="1463" data-purecounter-duration="1"
+                            <span data-purecounter-start="0" data-purecounter-end="{{ stats_notes_num }}" data-purecounter-duration="1"
                                   class="purecounter"></span>
-                            <p>Hours Of Support</p>
+                            <p>{{ stats_notes_text }}</p>
                         </div>
                     </div>
                 </div><!-- End Stats Item -->
@@ -77,9 +77,9 @@
                     <div class="stats-item d-flex align-items-center w-100 h-100">
                         <i class="bi bi-people color-pink flex-shrink-0" style="color: #bb0852;"></i>
                         <div>
-                            <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1"
+                            <span data-purecounter-start="0" data-purecounter-end="{{ stats_other_num }}" data-purecounter-duration="1"
                                   class="purecounter"></span>
-                            <p>Hard Workers</p>
+                            <p>{{ stats_other_text }}</p>
                         </div>
                     </div>
                 </div><!-- End Stats Item -->
@@ -104,50 +104,48 @@
                         <div class="col-md-6 icon-box">
                             <i class="bi bi-award"></i>
                             <div>
-                                <h4>Corporis voluptates sit</h4>
-                                <p>Consequuntur sunt aut quasi enim aliquam quae harum pariatur laboris nisi ut
-                                    aliquip</p>
+                                <h4>{{ service_1_title }}</h4>
+                                <p>{{ service_1_text }}</p>
                             </div>
                         </div><!-- End Feature Item -->
 
                         <div class="col-md-6 icon-box">
                             <i class="bi bi-card-checklist"></i>
                             <div>
-                                <h4>Ullamco laboris nisi</h4>
-                                <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                                    deserunt</p>
+                                <h4>{{ service_2_title }}</h4>
+                                <p>{{ service_2_text }}</p>
                             </div>
                         </div><!-- End Feature Item -->
 
                         <div class="col-md-6 icon-box">
                             <i class="bi bi-dribbble"></i>
                             <div>
-                                <h4>Labore consequatur</h4>
-                                <p>Aut suscipit aut cum nemo deleniti aut omnis. Doloribus ut maiores omnis facere</p>
+                                <h4>{{ service_3_title }}</h4>
+                                <p>{{ service_3_text }}</p>
                             </div>
                         </div><!-- End Feature Item -->
 
                         <div class="col-md-6 icon-box">
                             <i class="bi bi-filter-circle"></i>
                             <div>
-                                <h4>Beatae veritatis</h4>
-                                <p>Expedita veritatis consequuntur nihil tempore laudantium vitae denat pacta</p>
+                                <h4>{{ service_4_title }}</h4>
+                                <p>{{ service_4_text }}</p>
                             </div>
                         </div><!-- End Feature Item -->
 
                         <div class="col-md-6 icon-box">
                             <i class="bi bi-lightning-charge"></i>
                             <div>
-                                <h4>Molestiae dolor</h4>
-                                <p>Et fuga et deserunt et enim. Dolorem architecto ratione tensa raptor marte</p>
+                                <h4>{{ service_5_title }}</h4>
+                                <p>{{ service_5_text }}</p>
                             </div>
                         </div><!-- End Feature Item -->
 
                         <div class="col-md-6 icon-box">
                             <i class="bi bi-patch-check"></i>
                             <div>
-                                <h4>Explicabo consectetur</h4>
-                                <p>Est autem dicta beatae suscipit. Sint veritatis et sit quasi ab aut inventore</p>
+                                <h4>{{ service_6_title }}</h4>
+                                <p>{{ service_6_text }}</p>
                             </div>
                         </div><!-- End Feature Item -->
 

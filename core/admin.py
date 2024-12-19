@@ -42,3 +42,10 @@ class FaqSettingAdmin(admin.ModelAdmin):
 
     class Meta:
         model = FaqSetting
+
+
+@admin.register(ImgUpload)
+class MyModelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'image')
+    search_fields = ['id', 'title', 'image']
+    list_editable = ['title', 'image']

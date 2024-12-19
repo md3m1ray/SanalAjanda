@@ -1,4 +1,7 @@
 from django.db import models
+import os
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 class GeneralSetting(models.Model):
@@ -183,3 +186,29 @@ class FaqSetting(models.Model):
         verbose_name = "Faq Setting"
         verbose_name_plural = "Faq Settings"
         ordering = ('id', 'name', 'question', 'answer', 'updated_date')
+
+
+def dynamic_file_path(instance, filename):
+
+    new_filename = f"{instance.title}.png"
+
+    return os.path.join('img', new_filename)
+
+
+class ImgUpload(models.Model):
+    title = models.CharField(
+        max_length=100
+    )
+    image = models.ImageField(
+        upload_to=dynamic_file_path
+    )
+
+    def __str__(self):
+        return self.title
+
+
+@receiver(post_delete, sender=ImgUpload)
+def delete_file(sender, instance, **kwargs):
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
