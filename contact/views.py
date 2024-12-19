@@ -4,6 +4,9 @@ from django.http import JsonResponse
 def contact_form(request):
     context = {
         'success': True,
-        'message': 'Mesajiniz Iletildi En Kisa Surede Donus Yapilacaktir'
+        'message': 'Mesaj Iletildi'
     }
     return JsonResponse(context)
+
+def contact(request):
+    return render(request, 'contact.html')

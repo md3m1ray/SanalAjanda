@@ -2,29 +2,25 @@
 <html lang="tr">
 
 <head>
-{% include 'includes/head.html' %}
-{% block header %}
+    {% include 'includes/head.html' %}
+    {% block header %}
 
-{%endblock%}
+    {% endblock %}
 </head>
 
 <body class="index-page">
-  <main class="main">
 {% include 'includes/navbar.html' %}
-
-<div class="container">
+<main class="main">
 
     {% block content %}
 
     {% endblock %}
 
-</div>
+    {% block extra_scripts %}
+
+    {% endblock %}
+</main>
 {% include 'includes/footer.html' %}
 {% include 'includes/scripts.html' %}
-
-{%block extra_scripts%}
-
-{%endblock%}
-  </main>
 </body>
 </html>
