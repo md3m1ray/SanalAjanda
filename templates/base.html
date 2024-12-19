@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="tr">
 
-{% include 'includes/head.html' with title='Sanal Ajanda' %}
+<head>
+{% include 'includes/head.html' %}
+{% block header %}
 
-{%  block extra_head %}
-{% endblock %}
+{%endblock%}
+</head>
 
 <body class="index-page">
   <main class="main">
