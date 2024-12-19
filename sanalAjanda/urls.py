@@ -22,8 +22,9 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('Ajanda.urls')),
+    path('ajanda', include('Ajanda.urls')),
     path('contact/', include('contact.urls')),
+    path('', include('core.urls')),
 ]
 
 if settings.DEBUG:

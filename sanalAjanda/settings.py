@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Ajanda.apps.AjandaConfig',
     'contact.apps.ContactConfig',
+    'core.apps.CoreConfig',
 ]
 
 MIDDLEWARE = [
