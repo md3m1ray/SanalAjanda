@@ -3,7 +3,7 @@
 
 {% block header %}
 
-    <title>Contact</title>
+    <title>{{ contact_site_title }}</title>
 
 {% endblock %}
 
@@ -12,8 +12,8 @@
     <section id="contact" class="contact section">
 
         <div class="container section-title" data-aos="fade-up">
-            <h2>Contact</h2>
-            <p>Contact Us</p>
+            <h2>İletişim</h2>
+            <p>Soru ve Önerileriniz için Bize Ulaşın</p>
         </div>
 
         <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -25,30 +25,31 @@
                         <div class="row gy-4">
 
                             <div class="col-md-6">
-                                <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
+                                <input type="text" name="name" class="form-control" placeholder="İsim Soyisim"
+                                       required="">
                             </div>
 
                             <div class="col-md-6 ">
-                                <input type="email" class="form-control" name="email" placeholder="Your Email"
+                                <input type="email" class="form-control" name="email" placeholder="E-Posta Adresiniz"
                                        required="">
                             </div>
 
                             <div class="col-12">
-                                <input type="text" class="form-control" name="subject" placeholder="Subject"
+                                <input type="text" class="form-control" name="subject" placeholder="Konu"
                                        required="">
                             </div>
 
                             <div class="col-12">
-                                <textarea class="form-control" name="message" rows="6" placeholder="Message"
+                                <textarea class="form-control" name="message" rows="6" placeholder="Mesajınız"
                                           required=""></textarea>
                             </div>
 
                             <div class="col-12 text-center">
-                                <div class="loading">Loading</div>
-                                <div class="error-message"></div>
-                                <div class="sent-message">Your message has been sent. Thank you!</div>
+                                <div class="loading">Mesaj Gönderiliyor</div>
+                                <div class="error-message">Mesaj Gönderilemedi. Lütfen Tekrar Deneyiniz</div>
+                                <div class="sent-message">Mesajınız İletildi. En Kısa Sürede Dönüş Yapılacaktır!</div>
 
-                                <button type="submit">Send Message</button>
+                                <button type="submit">Mesajı Gönder</button>
                             </div>
                         </div>
                     </form>

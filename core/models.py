@@ -2,6 +2,7 @@ from django.db import models
 import os
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 
 class GeneralSetting(models.Model):
@@ -40,6 +41,44 @@ class GeneralSetting(models.Model):
         verbose_name = "General Setting"
         verbose_name_plural = "General Settings"
         ordering = ('id', 'name', 'description', 'parameter', 'updated_date', 'created_date')
+
+
+class NavbarSetting(models.Model):
+    name = models.CharField(
+        default="",
+        max_length=254,
+        blank=True,
+    )
+
+    parameter = models.CharField(
+        default="",
+        max_length=254,
+        blank=True
+    )
+
+    link = models.CharField(
+        default="",
+        max_length=254,
+        blank=True
+    )
+
+    updated_date = models.DateTimeField(
+        auto_now=True,
+        blank=True
+    )
+
+    created_date = models.DateTimeField(
+        auto_now_add=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return f"Navbar Setting: {self.name}"
+
+    class Meta:
+        verbose_name = "Navbar Setting"
+        verbose_name_plural = "Navbar Settings"
+        ordering = ('id', 'name', 'parameter', 'link', 'updated_date', 'created_date')
 
 
 class FooterSetting(models.Model):
@@ -189,8 +228,8 @@ class FaqSetting(models.Model):
 
 
 def dynamic_file_path(instance, filename):
-
-    new_filename = f"{instance.title}.png"
+    ext = os.path.splitext(filename)[1]
+    new_filename = f"{instance.title}{ext}"
 
     return os.path.join('img', new_filename)
 
@@ -205,6 +244,19 @@ class ImgUpload(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+
+        if ImgUpload.objects.filter(title=self.title).exclude(pk=self.pk).exists():
+            raise ValidationError(f"Aynı başlıkla bir kayıt zaten mevcut: {self.title}")
+
+        if self.pk:
+            old_instance = ImgUpload.objects.filter(pk=self.pk).first()
+            if old_instance and old_instance.image.name != self.image.name:
+                old_file_path = os.path.join(old_instance.image.path)
+                if os.path.isfile(old_file_path):
+                    os.remove(old_file_path)
+        super().save(*args, **kwargs)
 
 
 @receiver(post_delete, sender=ImgUpload)

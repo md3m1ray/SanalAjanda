@@ -13,6 +13,16 @@ class GeneralSettingAdmin(admin.ModelAdmin):
         model = GeneralSetting
 
 
+@admin.register(NavbarSetting)
+class NavbarSettingAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'parameter', 'link', 'updated_date', 'created_date']
+    search_fields = ['name', 'parameter', 'link']
+    list_editable = ['parameter', 'link']
+
+    class Meta:
+        model = NavbarSetting
+
+
 @admin.register(FooterSetting)
 class FooterSettingAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'description', 'parameter', 'link', 'updated_date', 'created_date']
@@ -28,7 +38,7 @@ class PricingSettingAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'parameter', 'price', 'feat1', 'feat2', 'feat3', 'feat4', 'feat5', 'feat6',
                     'updated_date']
     search_fields = ['name', 'parameter']
-    list_editable = ['parameter', 'price', 'feat1', 'feat2', 'feat3', 'feat4', 'feat5', 'feat6' ]
+    list_editable = ['parameter', 'price', 'feat1', 'feat2', 'feat3', 'feat4', 'feat5', 'feat6']
 
     class Meta:
         model = FooterSetting
@@ -49,3 +59,6 @@ class MyModelAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'image')
     search_fields = ['id', 'title', 'image']
     list_editable = ['title', 'image']
+
+    class Meta:
+        model = ImgUpload
