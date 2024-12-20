@@ -1,4 +1,4 @@
-from django.shortcuts import render
+﻿from django.shortcuts import render
 from core.models import GeneralSetting, FooterSetting, PricingSetting, FaqSetting, ImgUpload, NavbarSetting
 
 
