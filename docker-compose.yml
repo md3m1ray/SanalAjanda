@@ -9,6 +9,8 @@ services:
       - postgresql-data:/var/lib/postgresql/data
     command: -p 5432
   app:
+    container_name: app_sanalAjanda
+    hostname: app_sanalAjanda
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,6 +23,16 @@ services:
     ports:
       - "0.0.0.0:8080:8080"
     command: gunicorn sanalAjanda.wsgi:application --bind 0.0.0.0:8080
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - 80:80
+
 
 volumes:
   postgresql-data:
