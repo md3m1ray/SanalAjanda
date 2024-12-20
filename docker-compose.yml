@@ -1,8 +1,19 @@
 services:
+  postgres:
+    image: postgres:latest
+    env_file:
+      - sanalAjanda/docker.env
+    ports:
+      - '5432:5432'
+    volumes:
+      - "postgresql-data:/var/lib/postgresql/data"
+    command: -p 5432
   app:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      - postgres
     env_file:
       - sanalAjanda/docker.env
     volumes:
@@ -10,5 +21,6 @@ services:
     ports:
       - "8080:8080"
     command: python manage.py runserver 0.0.0.0:8080
+
 volumes:
   static-data:
