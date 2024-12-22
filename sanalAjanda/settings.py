@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     'Ajanda.apps.AjandaConfig',
     'contact.apps.ContactConfig',
     'core.apps.CoreConfig',
+    'users.apps.UsersConfig',
+    'django_recaptcha'
 ]
 
 MIDDLEWARE = [
@@ -103,5 +105,12 @@ EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+SITE_URL = "https://sanalajanda.com"
 
-# AUTH_USER_MODEL = 'SanalAjanda.CustomUser'
+# reCAPTCHA Ayarları
+RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
+RECAPTCHA_REQUIRED_SCORE = 0.85  # reCAPTCHA v3 için doğruluk puanı
+
+
+AUTH_USER_MODEL = 'users.User'

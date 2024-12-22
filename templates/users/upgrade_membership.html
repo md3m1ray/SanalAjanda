@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}
+
+    <title>{{ index_site_title }}</title>
+
+{% endblock %}
+
+{% block content %}
+    <section id="giris" class="section">
+
+        <!-- Section Title -->
+        <div class="container section-title" data-aos="fade-up">
+            <h2>Giris</h2>
+
+        </div><!-- End Section Title -->
+
+        <div class="container">
+            <<p>Welcome, {{ user.username }}! Your current membership level is:</p>
+            <p><strong>{{ user.membership_level }}</strong></p>
+
+            {% if user.membership_level == 'Standard' %}
+                <p>You can upgrade your membership to unlock additional features!</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <label for="membership">Select a new membership level:</label>
+                    <select name="membership" id="membership">
+                        <option value="Premium">Premium</option>
+                        <option value="Gold">Gold</option>
+                        <option value="Platinum">Platinum</option>
+                    </select>
+                    <button type="submit">Upgrade</button>
+                </form>
+            {% else %}
+                <p>Your current membership level is already higher than Standard. Contact support for further
+                    upgrades.</p>
+            {% endif %}
+
+            {% if error_message %}
+                <p style="color: red;">{{ error_message }}</p>
+            {% endif %}
+
+            <p><a href="{% url 'profile' %}">Back to Profile</a></p>
+        </div>
+    </section>
+{% endblock %}

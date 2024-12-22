@@ -7,8 +7,9 @@ staticfiles
 
 # C extensions
 *.so
-data.json
+data2.json
 data1.json
+data.json
 # Distribution / packaging
 .Python
 build/
