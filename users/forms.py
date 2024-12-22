@@ -37,9 +37,17 @@ class RegistrationForm(UserCreationForm):
     )
     recaptcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        # Ek doğrulamalar ekleyebilirsiniz
+        return cleaned_data
+
+
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2', 'membership_type']
+
+
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

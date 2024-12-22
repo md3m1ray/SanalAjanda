@@ -5,13 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_decode
 from users.models import User
 from django.urls import reverse_lazy
-from django.views.generic import View
 from users.forms import RegistrationForm, MembershipUpgradeForm
 from users.utils import email_verification_token
 from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 )
 from .forms import LoginForm, RegistrationForm, UserProfileForm
+
 
 # Kullanıcı Kayıt
 def register(request):
@@ -21,8 +21,12 @@ def register(request):
             user = form.save(commit=False)
             user.is_active = False  # Kullanıcı pasif, doğrulama bekleniyor
             user.save()
-            form.send_verification_email(user)  # Doğrulama e-postası gönder
-            messages.success(request, "Kayıt başarılı! Lütfen e-postanızı doğrulayın.")
+            try:
+                form.send_verification_email(user)  # Doğrulama e-postası gönder
+                messages.success(request, "Kayıt başarılı! Lütfen e-postanızı doğrulayın.")
+            except Exception as e:
+                messages.error(request, f"E-posta gönderiminde hata oluştu. Lütfen tekrar Deneyiniz")
+                user.delete()  # Kullanıcı kaydını geri al
             return redirect('login')
     else:
         form = RegistrationForm()
@@ -31,6 +35,7 @@ def register(request):
 
 # Kullanıcı Giriş
 def login_view(request):
+    next_url = request.GET.get('next', 'profile')  # 'next' parametresi
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -39,10 +44,10 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, "You have successfully logged in!")
-                return redirect('profile')
+                messages.success(request, "Başarıyla giriş yaptınız!")
+                return redirect(next_url)
             else:
-                messages.error(request, "Invalid username or password.")
+                messages.error(request, "Geçersiz kullanıcı adı veya şifre.")
     else:
         form = LoginForm()
     return render(request, 'users/login.html', {'form': form})
@@ -61,12 +66,13 @@ def verify_email(request, uidb64, token):
         uid = urlsafe_base64_decode(uidb64).decode()
         user = get_object_or_404(User, pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
+        messages.error(request, "Geçersiz kullanıcı veya bağlantı hatası.")
+        return redirect('login')
 
-    if user is not None and email_verification_token.check_token(user, token):
+    if email_verification_token.check_token(user, token):
         user.is_active = True
         user.save()
-        messages.success(request, "E-posta doğrulama işlemi başarılı!")
+        messages.success(request, "E-posta doğrulama başarılı! Artık giriş yapabilirsiniz.")
     else:
         messages.error(request, "Doğrulama bağlantısı geçersiz veya süresi dolmuş.")
     return redirect('login')
@@ -78,12 +84,11 @@ def upgrade_membership(request):
     if request.method == 'POST':
         form = MembershipUpgradeForm(request.POST, instance=request.user)
         if form.is_valid():
-            user = form.save(commit=False)
-            if user.membership_type != 'standard':  # Standart dışı üyelik
-                user.is_membership_approved = False  # Onay bekleniyor
-            user.save()
-            messages.success(request, "Üyelik yükseltme talebiniz alınmıştır. Yönetici onayı bekleniyor.")
+            form.save()
+            messages.success(request, "Üyelik değisim talebiniz alınmıştır. Yönetici onayı bekleniyor.")
             return redirect('profile')
+        else:
+            messages.error(request, "Form geçersiz. Lütfen tekrar deneyin.")
     else:
         form = MembershipUpgradeForm(instance=request.user)
     return render(request, 'users/upgrade_membership.html', {'form': form})
@@ -92,7 +97,9 @@ def upgrade_membership(request):
 # Profil
 @login_required
 def profile(request):
+    user = request.user
     return render(request, 'users/profile.html', {'user': request.user})
+
 
 # User Profile Edit View
 @login_required
@@ -106,6 +113,7 @@ def profile_edit(request):
     else:
         form = UserProfileForm(instance=request.user)
     return render(request, 'users/profile_edit.html', {'form': form})
+
 
 # Password Reset Views
 class CustomPasswordResetView(PasswordResetView):
