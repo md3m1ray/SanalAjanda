@@ -35,7 +35,7 @@ class RegistrationForm(UserCreationForm):
         required=True,
         error_messages={'required': "Devam etmek için şartları kabul etmelisiniz."},
     )
-    recaptcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+    # recaptcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -58,6 +58,9 @@ class RegistrationForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_active = False  # Kullanıcı e-posta doğrulama yapana kadar pasif
+        user.requested_membership_type = self.cleaned_data[
+            'membership_type']  # Seçilen üyelik türü talep olarak kaydedilir
+        user.membership_type = 'standard'  # Üyelik tipi varsayılan olarak "standart"
         if commit:
             user.save()
             self.send_verification_email(user)
@@ -130,14 +133,24 @@ class MembershipUpgradeForm(forms.ModelForm):
         }
 
     def clean_membership_type(self):
-        requested_type = self.cleaned_data.get('requested_membership_type')
+        cleaned_data = super().clean()
+        requested_membership_type = cleaned_data.get('requested_membership_type')
+        requested_duration = cleaned_data.get('requested_duration')
         current_type = self.instance.membership_type
 
-        # Eğer seçilen üyelik türü mevcut olandan düşükse hata ver
-        membership_levels = ['standard', 'premium', 'gold', 'platinum']
-        if membership_levels.index(requested_type) <= membership_levels.index(current_type):
-            raise forms.ValidationError("Yeni üyelik türü mevcut seviyenizden daha düşük veya aynı olamaz.")
-        return requested_type
+        if current_type == 'standard':
+            # Eğer kullanıcı "standard" üyelikteyse, hem üyelik tipi hem de süre zorunlu
+            if not requested_membership_type:
+                raise forms.ValidationError("Üyelik tipi seçmelisiniz.")
+            if not requested_duration:
+                raise forms.ValidationError("Üyelik süresi seçmelisiniz.")
+        else:
+            # Eğer kullanıcının zaten aktif bir üyeliği varsa, sadece süre uzatma yapılabilir
+            if not requested_duration:
+                raise forms.ValidationError("Süre uzatma talebi için süre seçmelisiniz.")
+            if requested_membership_type and requested_membership_type != current_type:
+                raise forms.ValidationError("Mevcut üyelik türünüzü değiştiremezsiniz.")
+        return cleaned_data
 
 
 # Profil Güncelleme Formu

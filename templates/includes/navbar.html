@@ -5,7 +5,7 @@
 
         <a href="{% url 'index' %}" class="logo d-flex align-items-center me-auto">
             <img src="{% get_media_prefix %}img/logo.png" alt="">
-            <h1 class="sitename">Sanal Ajanda</h1>
+            <h2 class="sitename">Sanal Ajanda</h2>
         </a>
 
         <nav id="navmenu" class="navmenu">
@@ -16,17 +16,16 @@
                 <li><a href="{% url 'index' %}#faq">SSS</a></li>
                 <li><a href="{% url 'contact' %}">Contact</a></li>
                 {% if user.is_authenticated %}
-                <li><a href="{% url 'profile' %}">Profil</a></li>
-                <li><a href="{% url 'logout' %}">Cikis</a></li>
-                {% else %}
-                <a class="btn-getlogin flex-md-shrink-0" href="{% url 'login' %}">Giris</a>
-                <a class="btn-getstarted flex-md-shrink-0" href="{% url 'register' %}">Kayit Ol</a>
+                    <li class="nav-item"><a href="{% url 'profile' %}">Profil</a></li>
+                    <li><a href="{% url 'logout' %}">Cikis</a></li>
                 {% endif %}
             </ul>
             <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
-
-
+        {% if not user.is_authenticated %}
+            <a class="btn-getlogin flex-md-shrink-0" href="{% url 'login' %}">Giris</a>
+            <a class="btn-getstarted flex-md-shrink-0" href="{% url 'register' %}">Kayit Ol</a>
+        {% endif %}
 
     </div>
 </header>

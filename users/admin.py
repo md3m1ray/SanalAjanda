@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, UserProfile
-from datetime import timedelta, datetime
+from datetime import timedelta
+from django.utils.timezone import now
 
 
 # Özelleştirilmiş Kullanıcı Yönetimi
@@ -36,20 +37,28 @@ class UserAdmin(BaseUserAdmin):
     @admin.action(description="Approve selected membership requests")
     def approve_membership(self, request, queryset):
         for user in queryset:
-            if user.requested_membership_type and user.requested_duration:
-                # Üyelik süresini hesapla
-                duration = 30 if user.requested_duration == 'monthly' else 365
-                if user.membership_expiry and user.membership_expiry > datetime.now():
-                    user.membership_expiry += timedelta(days=duration)  # Mevcut süreye ekle
-                else:
-                    user.membership_expiry = datetime.now() + timedelta(days=duration)  # Yeni süre başlat
-
-                # Üyelik türünü güncelle
+            if user.requested_membership_type:
                 user.membership_type = user.requested_membership_type
                 user.requested_membership_type = None
+                user.is_membership_approved = False
+
+            if user.requested_duration:
+                # Üyelik süresini hesapla
+                duration = 30 if user.requested_duration == 'monthly' else 365
+                current_time = now()
+                if user.membership_expiry:
+                    # Eğer `membership_expiry` timezone-aware değilse hata oluşabilir
+                    if user.membership_expiry > current_time:
+                        user.membership_expiry += timedelta(days=duration)
+                    else:
+                        user.membership_expiry = current_time + timedelta(days=duration)
+                else:
+                    user.membership_expiry = current_time + timedelta(days=duration)
+
                 user.requested_duration = None
                 user.is_membership_approved = False
-                user.save()
+
+            user.save()
 
         self.message_user(request, "Seçilen üyelikler başarıyla onaylandı.")
 
