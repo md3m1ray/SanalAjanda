@@ -45,7 +45,7 @@ class RegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2', 'membership_type']
+        fields = ['first_name', 'last_name', 'email', 'password1', 'password2', 'membership_type']
 
 
 
@@ -84,7 +84,6 @@ class RegistrationForm(UserCreationForm):
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
 
-
 # Şifre Sıfırlama Formu
 class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
@@ -116,19 +115,29 @@ class CustomSetPasswordForm(SetPasswordForm):
 
 
 # Üyelik Yükseltme Formu
+from django import forms
+from users.models import User
+
+
+# Üyelik Yükseltme Formu
 class MembershipUpgradeForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['membership_type']
+        fields = ['requested_membership_type', 'requested_duration']
         widgets = {
-            'membership_type': forms.Select(attrs={'class': 'form-control'}),
+            'requested_membership_type': forms.Select(attrs={'class': 'form-control'}),
+            'requested_duration': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def clean_membership_type(self):
-        membership_type = self.cleaned_data.get('membership_type')
-        if membership_type != 'standard' and not self.instance.is_membership_approved:
-            raise forms.ValidationError("Üyelik yükseltme talebi yönetici onayı bekliyor.")
-        return membership_type
+        requested_type = self.cleaned_data.get('requested_membership_type')
+        current_type = self.instance.membership_type
+
+        # Eğer seçilen üyelik türü mevcut olandan düşükse hata ver
+        membership_levels = ['standard', 'premium', 'gold', 'platinum']
+        if membership_levels.index(requested_type) <= membership_levels.index(current_type):
+            raise forms.ValidationError("Yeni üyelik türü mevcut seviyenizden daha düşük veya aynı olamaz.")
+        return requested_type
 
 
 # Profil Güncelleme Formu

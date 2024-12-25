@@ -44,7 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_of_birth = models.DateField(null=True, blank=True, verbose_name="Doğum Tarihi")
     phone_number = models.CharField(max_length=15, blank=True, verbose_name="Telefon Numarası")
     membership_type = models.CharField(
-        max_length=10,
+        max_length=15,
         choices=MEMBERSHIP_CHOICES,
         default='standard',
         verbose_name="Üyelik Tipi",
@@ -55,6 +55,20 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name="Üyelik Onayı",
         help_text="Yönetici onayı gerektiren üyelikler için.",
     )
+    requested_membership_type = models.CharField(
+        max_length=50,
+        choices=MEMBERSHIP_CHOICES,
+        blank=True,
+        null=True
+    )
+
+    requested_duration = models.CharField(
+        max_length=10,
+        choices=[('monthly', '1 Ay'), ('yearly', '1 Yıl')],
+        blank=True,
+        null=True
+    )
+
     is_active = models.BooleanField(default=True, verbose_name="Aktif")
     is_staff = models.BooleanField(default=False, verbose_name="Personel")
 

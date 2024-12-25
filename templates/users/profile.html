@@ -12,22 +12,22 @@
 
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
-            <h2>Giris</h2>
+            <h2>Profil</h2>
 
         </div><!-- End Section Title -->
 
         <div class="container">
             {% csrf_token %}
-            <p><strong>Username:</strong> {{ user.username }}</p>
-<p><strong>Email:</strong> {{ user.email }}</p>
-<p><a href="{% url 'profile_edit' %}">Edit Profile</a></p>
 
-            <p>Membership Level: {{ user.membership_level }}</p>
-{% if user.membership_expiry %}
-    <p>Expires On: {{ user.membership_expiry|date:"d M Y H:i" }}</p>
-{% else %}
-    <p>Membership does not expire.</p>
-{% endif %}
+            <p><strong>Merhaba </strong> {{ user.email }}</p>
+            <p><a href="{% url 'profile_edit' %}">Edit Profile</a></p>
+
+            <p>Membership Level: {{ user.membership_type }}</p>
+            {% if user.membership_expiry %}
+                <p>Expires On: {{ user.membership_expiry|date:"d M Y H:i" }}</p>
+            {% else %}
+                <p>Membership does not expire.</p>
+            {% endif %}
         </div>
     </section>
 {% endblock %}

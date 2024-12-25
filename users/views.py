@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_decode
 from users.models import User
 from django.urls import reverse_lazy
-from users.forms import RegistrationForm, MembershipUpgradeForm
+from users.forms import MembershipUpgradeForm
 from users.utils import email_verification_token
 from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
@@ -84,21 +84,29 @@ def upgrade_membership(request):
     if request.method == 'POST':
         form = MembershipUpgradeForm(request.POST, instance=request.user)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Üyelik değisim talebiniz alınmıştır. Yönetici onayı bekleniyor.")
+            user = form.save(commit=False)
+            user.is_membership_approved = True  # Yönetici onayına ihtiyaç duyuyor
+            user.save()
+            messages.success(request, "Üyelik yükseltme talebiniz alınmıştır. Yönetici onayı bekleniyor.")
             return redirect('profile')
         else:
-            messages.error(request, "Form geçersiz. Lütfen tekrar deneyin.")
+            messages.error(request, "Formda hata var. Lütfen tekrar deneyin.")
     else:
         form = MembershipUpgradeForm(instance=request.user)
-    return render(request, 'users/upgrade_membership.html', {'form': form})
 
+    return render(request, 'users/upgrade_membership.html', {'form': form})
 
 # Profil
 @login_required
 def profile(request):
     user = request.user
-    return render(request, 'users/profile.html', {'user': request.user})
+    membership_type = user.membership_type if hasattr(user, 'membership_type') else 'standard'
+
+    return render(request, 'users/profile.html', {
+        'user': user,
+        'membership_type': membership_type,
+    })
+
 
 
 # User Profile Edit View
@@ -109,7 +117,7 @@ def profile_edit(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Your profile has been updated.")
-            return redirect('users:profile')
+            return redirect('profile')
     else:
         form = UserProfileForm(instance=request.user)
     return render(request, 'users/profile_edit.html', {'form': form})
@@ -128,7 +136,7 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'users/password_reset_confirm.html'
-    success_url = reverse_lazy('users:password_reset_complete')
+    success_url = reverse_lazy('password_reset_complete')
 
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):

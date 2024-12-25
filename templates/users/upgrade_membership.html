@@ -17,35 +17,26 @@
         </div><!-- End Section Title -->
 
         <div class="container">
-            <p>Welcome, {{ user.username }}! Your current membership level is:</p>
-<p><strong>{{ user.membership_level }}</strong></p>
+            <p>Welcome, {{ user.email }}! Your current membership level is:</p>
+            <p><strong>{{ user.membership_type }}</strong></p>
 
-{% if user.membership_level == 'Standard' %}
-<p>You can upgrade your membership to unlock additional features!</p>
-<form method="post">
-    {% csrf_token %}
-    <label for="membership">Select a new membership level:</label>
-    <select name="membership" id="membership">
-        <option value="Premium">Premium</option>
-        <option value="Gold">Gold</option>
-        <option value="Platinum">Platinum</option>
-    </select>
-    <label for="duration">Select membership duration:</label>
-    <select name="duration" id="duration">
-        <option value="monthly">Monthly (30 days)</option>
-        <option value="yearly">Yearly (365 days)</option>
-    </select>
-    <button type="submit">Upgrade</button>
-</form>
-{% else %}
-<p>Your current membership level is already higher than Standard. Contact support for further upgrades.</p>
-{% endif %}
 
-{% if error_message %}
-<p style="color: red;">{{ error_message }}</p>
-{% endif %}
+            {% if user.requested_membership_type %}
+                <p>You have requested to upgrade to: <strong>{{ user.requested_membership_type }}</strong>. Waiting for
+                    admin approval.</p>
+            {% elif user.membership_type == 'standard' %}
+                <p>You can upgrade your membership to unlock additional features!</p>
+                <form method="post" action="{% url 'upgrade_membership' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Upgrade</button>
+                </form>
+            {% else %}
+                <p>Your membership level is already upgraded.</p>
+            {% endif %}
 
-<p><a href="{% url 'users:profile' %}">Back to Profile</a></p>
+
+            <p><a href="{% url 'profile' %}">Back to Profile</a></p>
         </div>
     </section>
 {% endblock %}
