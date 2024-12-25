@@ -141,3 +141,19 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'users/password_reset_complete.html'
+
+
+def profile_security(request):
+    return render(request, 'users/profile_security.html', )
+
+
+def profile_notifications(request):
+    return render(request, 'users/profile_notifications.html', )
+
+
+def profile_membership(request):
+    return render(request, 'users/profile_membership.html', )
+
+
+def profile_activity(request):
+    return render(request, 'users/profile_activity.html', )

@@ -9,6 +9,10 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),  # Çıkış yap
 
     path('profile/edit/', views.profile_edit, name='profile_edit'),
+    path('profile/security/', views.profile_security, name='profile_security'),
+    path('profile/notifications/', views.profile_notifications, name='profile_notifications'),
+    path('profile/membership/', views.profile_membership, name='profile_membership'),
+    path('profile/activity/', views.profile_activity, name='profile_activity'),
     path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
     path('password_reset/done/', views.CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
     path('password_reset/confirm/<uidb64>/<token>/', views.CustomPasswordResetConfirmView.as_view(),
