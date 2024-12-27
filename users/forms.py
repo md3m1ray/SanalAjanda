@@ -4,48 +4,99 @@ from .models import User
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
-
 # Kullanıcı Kayıt Formu
 class RegistrationForm(UserCreationForm):
     first_name = forms.CharField(
         max_length=30,
         required=True,
-        label="Ad",
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'id_first_name',
+            'placeholder': 'Adınız',
+            'required': 'required'
+        }),
     )
     last_name = forms.CharField(
         max_length=30,
         required=True,
-        label="Soyad",
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'id_last_name',
+            'placeholder': 'Soyadınız',
+            'required': 'required'
+        }),
     )
     email = forms.EmailField(
         required=True,
-        label="E-posta",
-        widget=forms.EmailInput(attrs={'class': 'form-control'}),
-        help_text="Doğru bir e-posta adresi giriniz.",
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'id': 'id_email',
+            'placeholder': 'Email Adresiniz',
+            'required': 'required'
+        }),
+    )
+    password1 = forms.CharField(
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'id': 'id_password1',
+            'placeholder': 'Şifre',
+            'required': 'required'
+        }),
+    )
+    password2 = forms.CharField(
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'id': 'id_password2',
+            'placeholder': 'Şifre (Tekrar)',
+            'required': 'required'
+        }),
     )
     membership_type = forms.ChoiceField(
-        choices=User.MEMBERSHIP_CHOICES,
-        initial='standard',
-        label="Üyelik Tipi",
+        required=True,
+        choices=[('', 'Select your membership type')] + User.MEMBERSHIP_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'id_membership_type',
+            'required': 'required',
+        }),
+    )
+
+    requested_duration = forms.ChoiceField(
+        choices=[('', 'Talep Edilen Süre'), ('monthly', '1 Ay'), ('yearly', '1 Yıl')],
+        required=False,
+        label="Talep Edilen Süre",
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+        }),
     )
     terms_accepted = forms.BooleanField(
-        label="Şartları ve koşulları kabul ediyorum.",
         required=True,
-        error_messages={'required': "Devam etmek için şartları kabul etmelisiniz."},
+        disabled=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            'id': 'agree-term',
+            'required': 'required'
+        }),
+        error_messages={'required': "Devam etmek için şartları okuyup kabul etmelisiniz."},
     )
-    # recaptcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+    recaptcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
     def clean(self):
         cleaned_data = super().clean()
-        # Ek doğrulamalar ekleyebilirsiniz
+        membership_type = cleaned_data.get('membership_type')
+        requested_duration = cleaned_data.get('requested_duration')
+
+        if membership_type != 'standard' and not requested_duration:
+            raise forms.ValidationError("Üyelik tipi seçildiğinde 'Talep Edilen Süre' zorunludur.")
+
         return cleaned_data
 
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password1', 'password2', 'membership_type']
+        fields = ['first_name', 'last_name', 'email', 'password1', 'password2', 'membership_type', 'requested_duration']
 
 
 
@@ -55,11 +106,21 @@ class RegistrationForm(UserCreationForm):
             raise forms.ValidationError("Bu e-posta adresi zaten kayıtlı.")
         return email
 
+    def clean_membership_type(self):
+        membership_type = self.cleaned_data.get('membership_type')
+        email = self.cleaned_data.get('email')
+
+        if membership_type == 'enterprise' and (not email or not email.endswith('.edu.tr')):
+            raise forms.ValidationError(
+                "Öğrenci üyelik tipini seçebilmek için '@edu.tr' uzantılı bir e-posta adresine sahip olmalısınız.")
+        return membership_type
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_active = False  # Kullanıcı e-posta doğrulama yapana kadar pasif
         user.requested_membership_type = self.cleaned_data[
             'membership_type']  # Seçilen üyelik türü talep olarak kaydedilir
+        user.requested_duration = self.cleaned_data.get('requested_duration')
         user.membership_type = 'standard'  # Üyelik tipi varsayılan olarak "standart"
         if commit:
             user.save()
@@ -137,6 +198,7 @@ class MembershipUpgradeForm(forms.ModelForm):
         requested_membership_type = cleaned_data.get('requested_membership_type')
         requested_duration = cleaned_data.get('requested_duration')
         current_type = self.instance.membership_type
+        email = self.instance.email
 
         if current_type == 'standard':
             # Eğer kullanıcı "standard" üyelikteyse, hem üyelik tipi hem de süre zorunlu
@@ -144,6 +206,9 @@ class MembershipUpgradeForm(forms.ModelForm):
                 raise forms.ValidationError("Üyelik tipi seçmelisiniz.")
             if not requested_duration:
                 raise forms.ValidationError("Üyelik süresi seçmelisiniz.")
+            if requested_membership_type == 'enterprise' and not email.endswith('@edu.tr'):
+                raise forms.ValidationError(
+                    "Öğrenci üyelik tipini seçebilmek için '@edu.tr' uzantılı bir e-posta adresine sahip olmalısınız.")
         else:
             # Eğer kullanıcının zaten aktif bir üyeliği varsa, sadece süre uzatma yapılabilir
             if not requested_duration:

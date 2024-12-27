@@ -1,5 +1,6 @@
 from pathlib import Path
 import environ
+from django.db.backends import sqlite3
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +26,8 @@ INSTALLED_APPS = [
     'contact.apps.ContactConfig',
     'core.apps.CoreConfig',
     'users.apps.UsersConfig',
-    'django_recaptcha'
+    'django_recaptcha',
+
 ]
 
 MIDDLEWARE = [
@@ -60,7 +62,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'sanalAjanda.wsgi.application'
 
 DATABASES = {
-    'default': env.db(),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3', # This is where you put the name of the db file.
+                 # If one doesn't exist, it will be created at migration time.
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -110,7 +116,5 @@ SITE_URL = "https://sanalajanda.com"
 # reCAPTCHA Ayarları
 RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
-RECAPTCHA_REQUIRED_SCORE = 0.85  # reCAPTCHA v3 için doğruluk puanı
-
 
 AUTH_USER_MODEL = 'users.User'

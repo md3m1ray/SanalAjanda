@@ -8,3 +8,18 @@
         {% endfor %}
     </div>
 {% endif %}
+
+{% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+            {% for field, errors in form.errors.items %}
+                <li>{{ field }}: {{ errors|join:", " }}</li>
+
+            {% endfor %}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+        </ul>
+
+    </div>
+
+{% endif %}

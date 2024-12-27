@@ -1,30 +1,303 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 
 {% block header %}
 
     <title>{{ index_site_title }}</title>
+    <style>
+        .form-container {
+            display: flex;
+            justify-content: center;
+            min-height: 50vh;
+        }
+
+        .recaptcha-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .register-form {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-button {
+            text-align: center;
+        }
+
+        .form-help {
+            color: #6c757d; /* Gri renk */
+            font-size: 0.85rem;
+            margin-top: 5px;
+            transition: all 0.3s ease; /* Animasyon ekleyebilirsiniz */
+        }
+
+        /* Modal stil */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .alert-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+    </style>
 
 {% endblock %}
 
 {% block content %}
-    <section id="giris" class="section" style="padding-top: 155px; scroll-margin-top: 98px;
+    <section id="register" class="section" style="padding-top: 155px; scroll-margin-top: 98px;
     overflow: clip">
 
-        <!-- Section Title -->
-        <div class="container section-title" data-aos="fade-up">
-            <h2>Kayit</h2>
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>{% trans 'Kayıt' %}</h2>
 
-        </div><!-- End Section Title -->
+    </div><!-- End Section Title -->
 
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-            {% endblock %}
+    <div class="container form-container" data-aos="fade-up" data-aos-delay="100">
+
+{% endblock %}
 {% block d_content %}
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit">Register</button>
-            </form>
+
+    <form method="POST" class="register-form form-control" id="register-form">
+        {% csrf_token %}
+        <div class="row">
+            <div class="form-group col-md-6 ">
+
+                {{ form.first_name }}
+            </div>
+            <!-- Soyad -->
+            <div class="form-group col-md-6 ">
+
+                {{ form.last_name }}
+            </div>
+            <!-- E-posta -->
+            <div class="form-group ">
+
+                {{ form.email }}
+                <div id="email-help" class="form-help" style="display: none;">
+                    <small>{% trans 'Öğrenci Paketi için Mail adresiniz .edu.tr uzantılı olmalıdır.' %}</small>
+                </div>
+            </div>
+            <!-- Şifre -->
+            <div class="form-group col-md-6 ">
+
+                {{ form.password1 }}
+                <div id="password-help" class="form-help" style="display: none;">
+                    <small>{% trans 'Şifreniz en az 8 karakter olmalı, harf ve rakam içermelidir.' %}</small>
+                </div>
+            </div>
+            <!-- Şifre Tekrar -->
+            <div class="form-group col-md-6 ">
+
+                {{ form.password2 }}
+
+            </div>
+            <!-- Üyelik Tipi -->
+            <div class="form-group col-md-6 ">
+
+                {{ form.membership_type }}
+            </div>
+            <div class="form-group col-md-6">
+
+                {{ form.requested_duration }}
+            </div>
+            <!-- Şartlar ve Koşullar -->
+            <div class="form-group form-button">
+                {{ form.terms_accepted }}
+                <label for="{{ form.terms_accepted.id_for_label }}" class="form-label">
+                    <a href="#" id="view-terms" class="term-service">Hizmet Koşullarını</a> Okudum ve Kabul Ediyorum.
+                </label>
+                <div id="alert-message" class="alert-message">
+                    {% trans 'Lütfen önce Hizmet Şartlarını okuyup kabul edin.' %}
+                </div>
+
+            </div>
+
+            <!-- Modal -->
+            <div id="terms-modal" class="modal form-group">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>{% trans 'Şartlar ve Koşullar' %}</h3>
+                    <p>Here are the terms and conditions you must agree to...</p>
+                    <button id="accept-terms" class="btn btn-primary">Kabul Ediyorum</button>
+                </div>
+            </div>
+
+            <div class="form-group recaptcha-container">
+                    {{ form.recaptcha }}
+                </div>
+
+            <!-- Kayıt Butonu -->
+            <div class="form-group form-button">
+                <input type="submit" name="signup" id="signup" class="btn btn-lg btn-success form-submit"
+                       value="{% trans 'Kayıt Ol' %}"/>
+            </div>
+            <div class="form-group form-button ">
+                <a class="btn btn-outline-info flex-md-shrink-0" href="{% url 'login' %}">{% trans 'Hesabım Var - Giriş Yap' %}</a>
+            </div>
         </div>
+    </form>
+
+
+    </div>
+
     </section>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const firstInput = document.querySelector("#{{ form.first_name.id_for_label }}");
+        if (firstInput) {
+            firstInput.focus();
+        }
+    });
+</script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const termsModal = document.getElementById("terms-modal");
+            const viewTermsLink = document.getElementById("view-terms");
+            const closeModal = document.querySelector(".close");
+            const acceptTermsButton = document.getElementById("accept-terms");
+            const agreeTermCheckbox = document.getElementById("agree-term");
+            const alertMessage = document.getElementById("alert-message");
+
+            // "Terms of service" linkine tıklayınca modal açılır
+            viewTermsLink.addEventListener("click", function (e) {
+                e.preventDefault();
+                termsModal.style.display = "block";
+            });
+
+            // Modal kapatma
+            closeModal.addEventListener("click", function () {
+                termsModal.style.display = "none";
+            });
+
+            // Modal dışında bir yere tıklayınca modal kapanır
+            window.addEventListener("click", function (event) {
+                if (event.target === termsModal) {
+                    termsModal.style.display = "none";
+                }
+            });
+
+            // Şartları kabul etme
+            acceptTermsButton.addEventListener("click", function () {
+                termsModal.style.display = "none";
+                agreeTermCheckbox.disabled = false; // Checkbox aktif hale gelir
+                agreeTermCheckbox.checked = true; // Checkbox işaretlenir
+                alertMessage.style.display = "none"; // Uyarı mesajı gizlenir
+            });
+        });
+    </script>
+
+
+
+    <script>
+        const membershipTypeField = document.getElementById("id_membership_type");
+        const requestedDurationField = document.getElementById("id_requested_duration");
+
+        function toggleRequestedDuration() {
+            if (membershipTypeField.value === "standard") {
+                requestedDurationField.disabled = true;
+                requestedDurationField.value = ""; // Boş değer ata
+            } else {
+                requestedDurationField.disabled = false;
+            }
+        }
+
+        // Sayfa yüklendiğinde ve alan değiştiğinde kontrol et
+        document.addEventListener("DOMContentLoaded", toggleRequestedDuration);
+        membershipTypeField.addEventListener("change", toggleRequestedDuration);
+    </script>
+
+    <script>
+        document.getElementById("id_membership_type").addEventListener("change", function () {
+            if (this.value === "") {
+                alert("Lütfen bir üyelik tipi seçin.");
+            }
+        });
+    </script>
+    <script>
+        document.getElementById("id_membership_type").addEventListener("change", function () {
+            const emailField = document.getElementById("id_email");
+            const membershipField = this;
+
+            if (membershipField.value === "enterprise" && !emailField.value.endsWith(".edu.tr")) {
+                alert("Öğrenci üyelik tipini seçebilmek için '@edu.tr' uzantılı bir e-posta adresi kullanmalısınız.");
+            }
+        });
+    </script>
+
+    <script>
+        // E-posta alanı için bilgilendirme
+        const emailField = document.getElementById('id_email');
+        const emailHelp = document.getElementById('email-help');
+        emailField.addEventListener('focus', () => {
+            emailHelp.style.display = 'block';
+        });
+        emailField.addEventListener('blur', () => {
+            emailHelp.style.display = 'none';
+        });
+
+        // Şifre alanları için bilgilendirme
+        const passwordFields = [document.getElementById("id_password1"), document.getElementById("id_password2")];
+        const passwordHelp = document.getElementById("password-help");
+
+        passwordFields.forEach((field) => {
+            field.addEventListener("focus", () => {
+                passwordHelp.style.display = "block";
+            });
+            field.addEventListener("blur", () => {
+                passwordHelp.style.display = "none";
+            });
+        });
+    </script>
+
 {% endblock %}

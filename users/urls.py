@@ -1,5 +1,6 @@
 from django.urls import path
 from users import views
+
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -7,7 +8,6 @@ urlpatterns = [
     path('register/', views.register, name='register'),  # Kayıt sayfası
     path('login/', views.login_view, name='login'),  # Giriş sayfası
     path('logout/', views.logout_view, name='logout'),  # Çıkış yap
-
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/security/', views.profile_security, name='profile_security'),
     path('profile/notifications/', views.profile_notifications, name='profile_notifications'),
