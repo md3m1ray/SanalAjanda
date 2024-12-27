@@ -8,7 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         expired_users = User.objects.filter(
             membership_expiry__lt=now(),
-            membership_type__in=['Premium', 'Gold', 'Platinum']
+            membership_type__in=['premium', 'pro', 'enterprise']
         )
         for user in expired_users:
             user.membership_type = 'standard'
