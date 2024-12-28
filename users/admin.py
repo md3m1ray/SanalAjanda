@@ -3,6 +3,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, UserProfile
 from datetime import timedelta
 from django.utils.timezone import now
+from django_otp.plugins.otp_static.models import StaticDevice
+from django_otp.plugins.otp_totp.models import TOTPDevice
 
 
 # Özelleştirilmiş Kullanıcı Yönetimi
@@ -12,16 +14,17 @@ class UserAdmin(BaseUserAdmin):
     Kullanıcı yönetimi için özelleştirilmiş admin sınıfı.
     """
     list_display = ['email', 'first_name', 'last_name', 'membership_type', 'requested_membership_type', 'requested_duration',
-                    'membership_expiry', 'is_membership_approved', 'is_active']
+                    'membership_expiry', 'is_membership_approved', 'is_2fa_enabled_display', 'is_active']
     list_filter = ['membership_type', 'is_membership_approved', 'is_active']
     search_fields = ['email', 'first_name', 'last_name']
     ordering = ['email']
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Kişisel Bilgiler', {'fields': ('first_name', 'last_name', 'date_of_birth', 'phone_number')}),
+        ('Kişisel Bilgiler', {'fields': ('first_name', 'last_name', 'date_of_birth', 'phone_number','email_notifications_enabled')}),
         ('Üyelik Durumu', {'fields': (
         'membership_type', 'requested_membership_type', 'requested_duration', 'membership_expiry',
         'is_membership_approved')}),
+
         ('Yetkiler', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Önemli Tarihler', {'fields': ('last_login',)}),
     )
@@ -33,6 +36,15 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
     actions = ['approve_membership']
+
+    @admin.display(boolean=True, description='2FA Enabled')
+    def is_2fa_enabled_display(self, obj):
+        """Kullanıcının 2FA'nın etkin olup olmadığını kontrol eder."""
+        return (
+                StaticDevice.objects.filter(user=obj).exists() or
+                TOTPDevice.objects.filter(user=obj).exists()
+        )
+
 
     @admin.action(description="Approve selected membership requests")
     def approve_membership(self, request, queryset):

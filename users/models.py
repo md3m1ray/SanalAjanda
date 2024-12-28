@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.timezone import now
+from django_otp.models import Device
+from django_otp.plugins.otp_static.models import StaticDevice
+from django_otp.plugins.otp_totp.models import TOTPDevice
+
 
 class CustomUserManager(BaseUserManager):
     """
@@ -71,6 +75,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True, verbose_name="Aktif")
     is_staff = models.BooleanField(default=False, verbose_name="Personel")
+    is_2fa_enabled = models.BooleanField(default=False, verbose_name="2FA")
+    email_notifications_enabled = models.BooleanField(
+        default=False,
+        verbose_name="Email Bildirimlerini Aç/Kapat"
+    )
 
     objects = CustomUserManager()
 
@@ -89,8 +98,19 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         return self.membership_type in ['premium', 'pro', 'enterprise']
 
+    @property
+    def is_2fa_enabled(self):
+        """Kullanıcı için herhangi bir OTP cihazı olup olmadığını kontrol eder."""
+        return (
+                StaticDevice.objects.filter(user=self).exists() or
+                TOTPDevice.objects.filter(user=self).exists()
+        )
+
     def __str__(self):
         return self.email
+
+
+
 
     class Meta:
         verbose_name = "Kullanıcı"

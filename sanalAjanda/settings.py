@@ -11,9 +11,9 @@ DEBUG = env('DEBUG')
 
 SECRET_KEY = env('SECRET_KEY')
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS',cast=list)
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', cast=list)
 
-CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS',cast=list)
+CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', cast=list)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,6 +40,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+INSTALLED_APPS += ['django_otp', 'django_otp.plugins.otp_totp', 'django_otp.plugins.otp_static',
+                   'qrcode', 'two_factor']
+
+MIDDLEWARE += ['django_otp.middleware.OTPMiddleware']
+
+LOGIN_URL = 'two_factor:login'
+LOGOUT_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'profile'
+
 ROOT_URLCONF = 'sanalAjanda.urls'
 
 TEMPLATES = [
@@ -64,8 +73,8 @@ WSGI_APPLICATION = 'sanalAjanda.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3', # This is where you put the name of the db file.
-                 # If one doesn't exist, it will be created at migration time.
+        'NAME': 'db.sqlite3',  # This is where you put the name of the db file.
+        # If one doesn't exist, it will be created at migration time.
     }
 }
 

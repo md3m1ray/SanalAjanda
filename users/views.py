@@ -11,6 +11,10 @@ from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 )
 from .forms import LoginForm, RegistrationForm, UserProfileForm
+from django_otp import devices_for_user
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm , SetPasswordForm
 
 
 # Kullanıcı Kayıt
@@ -43,11 +47,15 @@ def login_view(request):
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
             if user is not None:
+                # Kullanıcı giriş yapıyor
                 login(request, user)
-                messages.success(request, "Başarıyla giriş yaptınız!")
-                return redirect(next_url)
+                # Eğer kullanıcının 2FA cihazı varsa doğrulama sayfasına yönlendirilir
+                if any(dev.confirmed for dev in devices_for_user(user)):
+                    return redirect('two_factor:login')
+                # 2FA etkin değilse direkt giriş yapılır
+                return redirect('profile')
             else:
-                messages.error(request, "Geçersiz kullanıcı adı veya şifre.")
+                form.add_error(None, 'Geçersiz giriş bilgileri')
     else:
         form = LoginForm()
     return render(request, 'users/login.html', {'form': form})
@@ -142,18 +150,62 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'users/password_reset_complete.html'
 
-
+@login_required
 def profile_security(request):
-    return render(request, 'users/profile_security.html', )
+    user = request.user  # Oturum açmış kullanıcı
+    if request.method == 'POST':
+        form = SetPasswordForm(user, request.POST)  # Kullanıcıyı form ile başlatın
+        if form.is_valid():
+            form.save()  # Yeni şifreyi kaydet
+            update_session_auth_hash(request, user)  # Kullanıcının oturumunu açık tut
+            messages.success(request, "Your password has been successfully updated.")
+            return redirect('profile_security')
+    else:
+        form = SetPasswordForm(user)  # Formu kullanıcıyla başlatın
 
+    return render(request, 'users/profile_security.html', {'form': form})
 
+@login_required
 def profile_notifications(request):
     return render(request, 'users/profile_notifications.html', )
 
-
+@login_required
 def profile_membership(request):
     return render(request, 'users/profile_membership.html', )
 
-
+@login_required
 def profile_activity(request):
     return render(request, 'users/profile_activity.html', )
+
+@login_required
+def toggle_email_notifications(request):
+    user = request.user
+    user.email_notifications_enabled = not user.email_notifications_enabled
+    user.save()
+    messages.success(request, "Email bildirim ayarları güncellendi.")
+    return redirect('profile_security')
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, data=request.POST)
+        if form.is_valid():
+            user = request.user
+            user.set_password(form.cleaned_data['new_password1'])
+            user.save()
+            messages.success(request, "Şifreniz Başarıyla Değiştirildi.")
+            return redirect('profile_security')
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'users/profile_security.html', {'form': form})
+
+@login_required
+def disable_two_factor(request):
+    """Kullanıcının 2FA cihazlarını kaldır."""
+    TOTPDevice.objects.filter(user=request.user).delete()
+    if not request.user.is_2fa_enabled:
+        messages.success(request, "Two-Factor Authentication başarıyla devre dışı bırakıldı.")
+    else:
+        messages.error(request, "Two-Factor Authentication devre dışı bırakılamadı. Lütfen tekrar deneyin.")
+    return redirect('profile_security')

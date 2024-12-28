@@ -1,5 +1,7 @@
 from django.urls import path
 from users import views
+from .views import toggle_email_notifications, change_password, disable_two_factor
+from two_factor.views import LoginView
 
 from django.contrib.auth import views as auth_views
 
@@ -7,10 +9,13 @@ urlpatterns = [
     # Kullanıcı işlemleri
     path('register/', views.register, name='register'),  # Kayıt sayfası
     path('login/', views.login_view, name='login'),  # Giriş sayfası
+    path('2fa/', LoginView.as_view(), name='two_factor_login'),
+    path('disable-two-factor/', disable_two_factor, name='disable_two_factor'),
     path('logout/', views.logout_view, name='logout'),  # Çıkış yap
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/security/', views.profile_security, name='profile_security'),
     path('profile/notifications/', views.profile_notifications, name='profile_notifications'),
+    path('toggle-email-notifications/', toggle_email_notifications, name='toggle_email_notifications'),
     path('profile/membership/', views.profile_membership, name='profile_membership'),
     path('profile/activity/', views.profile_activity, name='profile_activity'),
     path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
@@ -27,5 +32,6 @@ urlpatterns = [
 
     # Profil ve yönetim
     path('profile/', views.profile, name='profile'),  # Kullanıcı profil sayfası
+    path('change_password/', change_password, name='change_password'),
 
 ]

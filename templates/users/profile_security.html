@@ -4,6 +4,52 @@
 {% block header %}
 
     <title>{{ index_site_title }}</title>
+    <style>
+        .progress-bar {
+            height: 10px;
+        }
+
+        .progress-bar.weak {
+            background-color: red;
+        }
+
+        .progress-bar.medium {
+            background-color: orange;
+        }
+
+        .progress-bar.strong {
+            background-color: green;
+        }
+
+        .password-requirement.valid {
+            color: green;
+        }
+
+        .password-requirement.invalid {
+            color: red;
+        }
+
+        #password-strength-bar.bg-danger {
+            background-color: #dc3545;
+        }
+
+        #password-strength-bar.bg-warning {
+            background-color: #ffc107;
+        }
+
+        #password-strength-bar.bg-success {
+            background-color: #28a745;
+        }
+
+        input::placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
+
+        input:focus::placeholder {
+            opacity: 0.7;
+        }
+    </style>
 
 {% endblock %}
 
@@ -11,18 +57,16 @@
     <section id="profile" class="section" style="padding-top: 155px; scroll-margin-top: 98px;
     overflow: clip">
 
-    <!-- Section Title -->
     <div class="container section-title" data-aos="fade-up">
-        <h2>Profil</h2>
+        <h2>Profil - Güvenlik ve Bildirim Ayarları</h2>
 
-    </div><!-- End Section Title -->
+    </div>
 
     <div class="container" data-aos="fade-up" data-aos-delay="100">
 {% endblock %}
 {% block d_content %}
     {% csrf_token %}
 
-    <!-- Main Content -->
 
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
@@ -31,63 +75,38 @@
                 <div class="col-lg-3 border-end">
                     <div class="p-4">
                         <div class="nav flex-column nav-pills">
-                           <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Personal
-                                Info</a>
-                            <a class="nav-link active" href="{% url 'profile_security' %}"><i class="fas fa-lock me-2"></i>Security</a>
-                            <a class="nav-link" href="{% url 'profile_notifications' %}"><i class="fas fa-bell me-2"></i>Notifications</a>
-                            <a class="nav-link" href="{% url 'profile_membership' %}"><i class="fas fa-credit-card me-2"></i>Billing</a>
-                            <a class="nav-link" href="{% url 'profile_activity' %}"><i class="fas fa-chart-line me-2"></i>Activity</a>
+                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel Bilgiler</a>
+                            <a class="nav-link active" href="{% url 'profile_security' %}"><i
+                                    class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
+                            <a class="nav-link" href="{% url 'profile_membership' %}"><i
+                                    class="fas fa-credit-card me-2"></i>Üyelik Paketi Ayarları</a>
+                            <a class="nav-link" href="{% url 'profile_activity' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Yapılan İşlemler</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Content Area -->
                 <div class="col-lg-9">
                     <div class="p-4">
-                        <!-- Personal Information -->
+
                         <div class="mb-4">
-                            <h5 class="mb-4">Personal Information</h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <br>
-                                    <center><label class="form-label">Uyelik
-                                        Paketi: <strong>{{ user.get_membership_type_display }}</strong> </label><br>
-                                        {% if user.membership_expiry %}
-                                            <label class="form-label">Bitis Tarihi
-                                                : <strong>{{ user.membership_expiry|date:"d M Y" }}</strong></label>
-                                        {% endif %}
-                                    </center>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" disabled value={{ user.email }}>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">First Name</label>
-                                    <input type="text" class="form-control" disabled value={{ user.first_name }}>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" disabled value={{ user.last_name }}>
-                                </div>
+                            <h5 class="mb-4">Güvenlik ve Bildirim Ayarları</h5>
 
-
-                            </div>
                         </div>
 
-                        <!-- Settings Cards -->
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
                                 <div class="settings-card card">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-1">Two-Factor Authentication</h6>
-                                                <p class="text-muted mb-0 small">Add an extra layer of
-                                                    security</p>
+                                                <h6 class="mb-1">2FA Doğrulama Ayarı</h6>
+                                                <p class="text-muted mb-0 small">Güvenliğiniz İçin Google Auth Aktifleştirin</p>
                                             </div>
                                             <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
+                                                <input class="form-check-input" type="checkbox" id="twoFactor"
+                                                       {% if user.is_2fa_enabled %}checked{% endif %}
+                                                       onchange="handleTwoFactorToggle(this)">
                                             </div>
                                         </div>
                                     </div>
@@ -98,35 +117,94 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-1">Email Notifications</h6>
-                                                <p class="text-muted mb-0 small">Receive activity updates
+                                                <h6 class="mb-1">E-Posta Bildirimleri</h6>
+                                                <p class="text-muted mb-0 small">Ajanda Not ve Güncelleme Bildirimlerini Alın
                                                 </p>
                                             </div>
                                             <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
+                                                <input class="form-check-input" type="checkbox" id="emailNotifications"
+                                                       {% if user.email_notifications_enabled %}checked{% endif %}
+                                                       onclick="location.href='{% url 'toggle_email_notifications' %}'">
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="container mt-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="mb-4">Şifreyi Değiştir</h5>
+                                    <form method="POST" id="password-change-form">
+                                        {% csrf_token %}
+                                        <div class="form-group mb-3">
 
-                        <!-- Recent Activity -->
-                        <div>
-                            <h5 class="mb-4">Recent Activity</h5>
-                            <div class="activity-item mb-3">
-                                <h6 class="mb-1">Updated profile picture</h6>
-                                <p class="text-muted small mb-0">2 hours ago</p>
-                            </div>
-                            <div class="activity-item mb-3">
-                                <h6 class="mb-1">Changed password</h6>
-                                <p class="text-muted small mb-0">Yesterday</p>
-                            </div>
-                            <div class="activity-item">
-                                <h6 class="mb-1">Updated billing information</h6>
-                                <p class="text-muted small mb-0">3 days ago</p>
+                                            <input
+                                                    type="password"
+                                                    id="id_current_password"
+                                                    name="current_password"
+                                                    class="form-control"
+                                                    placeholder="Şu an kullandığınız Şifrenizi Giriniz"
+                                                    required>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+
+                                            <input
+                                                    type="password"
+                                                    id="id_new_password1"
+                                                    name="new_password1"
+                                                    class="form-control"
+                                                    placeholder="Yeni Şifrenizi Giriniz"
+                                                    required>
+                                            <div class="mt-2">
+                                                <div class="progress">
+                                                    <div id="password-strength-bar" class="progress-bar"
+                                                         role="progressbar" style="width: 0%;"></div>
+                                                </div>
+                                                <p id="password-strength-text" class="mt-1">Şifre Gücü : Zayıf</p>
+                                            </div>
+                                            <ul class="password-requirements list-unstyled">
+                                                <li class="password-requirement invalid" data-requirement="length">En az 8 Karakter
+                                                    Giriniz.
+                                                </li>
+                                                <li class="password-requirement invalid" data-requirement="uppercase">En az bir Büyük Harf
+                                                </li>
+                                                <li class="password-requirement invalid" data-requirement="lowercase">En az bir Küçük Harf
+                                                </li>
+                                                <li class="password-requirement invalid" data-requirement="number">En az bir Rakam
+                                                </li>
+                                                <li class="password-requirement invalid" data-requirement="special">En az bir Özel Karakter !@#$%^&*(),.?":{}|<>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+
+                                            <input
+                                                    type="password"
+                                                    id="id_new_password2"
+                                                    name="new_password2"
+                                                    class="form-control"
+                                                    placeholder="Yeni Şifrenizi Tekrar Giriniz"
+                                                    required>
+                                            <div id="password-match-text" class="text-danger mt-2"
+                                                 style="display: none;">Şifreler Eşleşmiyor
+                                            </div>
+                                            <div id="password-match-success" class="text-success mt-2"
+                                                 style="display: none;">Şifreler Eşleşiyor
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary">Şifreyi Güncelle</button>
+                                    </form>
+
+
+                                </div>
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>
@@ -137,4 +215,97 @@
 
     </section>
 
+{% endblock %}
+{% block extra_scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordField = document.getElementById("id_new_password1");
+            const confirmPasswordField = document.getElementById("id_new_password2");
+            const strengthBar = document.getElementById("password-strength-bar");
+            const strengthText = document.getElementById("password-strength-text");
+            const requirements = document.querySelectorAll(".password-requirement");
+            const matchText = document.getElementById("password-match-text");
+            const matchSuccess = document.getElementById("password-match-success");
+
+            const criteria = {
+                length: false,
+                uppercase: false,
+                lowercase: false,
+                number: false,
+                special: false,
+            };
+
+            const updateStrengthBar = () => {
+                const totalValid = Object.values(criteria).filter(Boolean).length;
+                const strength = totalValid / Object.keys(criteria).length;
+
+                if (strengthBar) {
+                    strengthBar.style.width = `${strength * 100}%`;
+                    if (strength <= 0.33) {
+                        strengthBar.className = "progress-bar bg-danger";
+                        strengthText.textContent = "Zayıf";
+                    } else if (strength <= 0.66) {
+                        strengthBar.className = "progress-bar bg-warning";
+                        strengthText.textContent = "Orta";
+                    } else {
+                        strengthBar.className = "progress-bar bg-success";
+                        strengthText.textContent = "Güçlü";
+                    }
+                }
+            };
+
+            const validatePassword = (password) => {
+                criteria.length = password.length >= 8;
+                criteria.uppercase = /[A-Z]/.test(password);
+                criteria.lowercase = /[a-z]/.test(password);
+                criteria.number = /[0-9]/.test(password);
+                criteria.special = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+                requirements.forEach((req) => {
+                    const key = req.getAttribute("data-requirement");
+                    if (criteria[key]) {
+                        req.classList.add("valid");
+                        req.classList.remove("invalid");
+                    } else {
+                        req.classList.add("invalid");
+                        req.classList.remove("valid");
+                    }
+                });
+
+                updateStrengthBar();
+            };
+
+            const validateConfirmPassword = () => {
+                if (confirmPasswordField.value === passwordField.value) {
+                    matchSuccess.style.display = "block";
+                    matchText.style.display = "none";
+                } else {
+                    matchText.style.display = "block";
+                    matchSuccess.style.display = "none";
+                }
+            };
+
+            passwordField.addEventListener("input", () => validatePassword(passwordField.value));
+            confirmPasswordField.addEventListener("input", validateConfirmPassword);
+        });
+
+
+    </script>
+
+
+    <script>
+        function handleTwoFactorToggle(checkbox) {
+            if (checkbox.checked) {
+                // 2FA'yı etkinleştir
+                location.href = "{% url 'two_factor:setup' %}";
+            } else {
+                // 2FA'yı devre dışı bırakmadan önce onay alın
+                if (confirm("Two-Factor Authentication'ı devre dışı bırakmak istediğinizden emin misiniz?")) {
+                    location.href = "{% url 'disable_two_factor' %}";
+                } else {
+                    checkbox.checked = true; // İşlem iptal edilirse geri eski durumuna çevir
+                }
+            }
+        }
+    </script>
 {% endblock %}

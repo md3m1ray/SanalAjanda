@@ -10,9 +10,9 @@ DEBUG = env('DEBUG')
 
 SECRET_KEY = env('SECRET_KEY')
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS',cast=list)
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', cast=list)
 
-CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS',cast=list)
+CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', cast=list)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     'django_recaptcha'
 ]
 
+INSTALLED_APPS += ['django_otp', 'django_otp.plugins.otp_totp', 'qrcode', 'django_otp.plugins.otp_static', 'two_factor']
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -36,7 +38,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_otp.middleware.OTPMiddleware'
 ]
+
+
+LOGIN_URL = 'two_factor:login'
+LOGOUT_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'profile'
 
 ROOT_URLCONF = 'sanalAjanda.urls'
 
@@ -111,7 +119,6 @@ SITE_URL = "https://sanalajanda.com"
 RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
 RECAPTCHA_REQUIRED_SCORE = 0.85  # reCAPTCHA v3 için doğruluk puanı
-
 
 AUTH_USER_MODEL = 'users.User'
 
