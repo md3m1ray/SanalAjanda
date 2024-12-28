@@ -153,8 +153,12 @@ class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
         max_length=254,
         label="E-posta",
-        widget=forms.EmailInput(attrs={'class': 'form-control'}),
-        help_text="Kayıtlı e-posta adresinizi girin.",
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'E-posta adresinizi giriniz',
+            'required': 'required',
+        }),
+
     )
 
     def clean_email(self):

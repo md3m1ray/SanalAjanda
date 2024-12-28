@@ -18,6 +18,7 @@
             align-items: center;
             margin-top: 15px;
         }
+
         .register-form {
             width: 100%;
             max-width: 800px;
@@ -100,92 +101,94 @@
 
     </div><!-- End Section Title -->
 
-    <div class="container form-container" data-aos="fade-up" data-aos-delay="100">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
 
 {% endblock %}
 {% block d_content %}
+    <div class=" form-container">
+        <form method="POST" class="register-form form-control" id="register-form">
+            {% csrf_token %}
+            <div class="row">
+                <div class="form-group col-md-6 ">
 
-    <form method="POST" class="register-form form-control" id="register-form">
-        {% csrf_token %}
-        <div class="row">
-            <div class="form-group col-md-6 ">
-
-                {{ form.first_name }}
-            </div>
-            <!-- Soyad -->
-            <div class="form-group col-md-6 ">
-
-                {{ form.last_name }}
-            </div>
-            <!-- E-posta -->
-            <div class="form-group ">
-
-                {{ form.email }}
-                <div id="email-help" class="form-help" style="display: none;">
-                    <small>{% trans 'Öğrenci Paketi için Mail adresiniz .edu.tr uzantılı olmalıdır.' %}</small>
+                    {{ form.first_name }}
                 </div>
-            </div>
-            <!-- Şifre -->
-            <div class="form-group col-md-6 ">
+                <!-- Soyad -->
+                <div class="form-group col-md-6 ">
 
-                {{ form.password1 }}
-                <div id="password-help" class="form-help" style="display: none;">
-                    <small>{% trans 'Şifreniz en az 8 karakter olmalı, harf ve rakam içermelidir.' %}</small>
+                    {{ form.last_name }}
                 </div>
-            </div>
-            <!-- Şifre Tekrar -->
-            <div class="form-group col-md-6 ">
+                <!-- E-posta -->
+                <div class="form-group ">
 
-                {{ form.password2 }}
+                    {{ form.email }}
+                    <div id="email-help" class="form-help" style="display: none;">
+                        <small>{% trans 'Öğrenci Paketi için Mail adresiniz .edu.tr uzantılı olmalıdır.' %}</small>
+                    </div>
+                </div>
+                <!-- Şifre -->
+                <div class="form-group col-md-6 ">
 
-            </div>
-            <!-- Üyelik Tipi -->
-            <div class="form-group col-md-6 ">
+                    {{ form.password1 }}
+                    <div id="password-help" class="form-help" style="display: none;">
+                        <small>{% trans 'Şifreniz en az 8 karakter olmalı, harf ve rakam içermelidir.' %}</small>
+                    </div>
+                </div>
+                <!-- Şifre Tekrar -->
+                <div class="form-group col-md-6 ">
 
-                {{ form.membership_type }}
-            </div>
-            <div class="form-group col-md-6">
+                    {{ form.password2 }}
 
-                {{ form.requested_duration }}
-            </div>
-            <!-- Şartlar ve Koşullar -->
-            <div class="form-group form-button">
-                {{ form.terms_accepted }}
-                <label for="{{ form.terms_accepted.id_for_label }}" class="form-label">
-                    <a href="#" id="view-terms" class="term-service">Hizmet Koşullarını</a> Okudum ve Kabul Ediyorum.
-                </label>
-                <div id="alert-message" class="alert-message">
-                    {% trans 'Lütfen önce Hizmet Şartlarını okuyup kabul edin.' %}
+                </div>
+                <!-- Üyelik Tipi -->
+                <div class="form-group col-md-6 ">
+
+                    {{ form.membership_type }}
+                </div>
+                <div class="form-group col-md-6">
+
+                    {{ form.requested_duration }}
+                </div>
+                <!-- Şartlar ve Koşullar -->
+                <div class="form-group form-button">
+                    {{ form.terms_accepted }}
+                    <label for="{{ form.terms_accepted.id_for_label }}" class="form-label">
+                        <a href="#" id="view-terms" class="term-service">Hizmet Koşullarını</a> Okudum ve Kabul
+                        Ediyorum.
+                    </label>
+                    <div id="alert-message" class="alert-message">
+                        {% trans 'Lütfen önce Hizmet Şartlarını okuyup kabul edin.' %}
+                    </div>
+
                 </div>
 
-            </div>
-
-            <!-- Modal -->
-            <div id="terms-modal" class="modal form-group">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h3>{% trans 'Şartlar ve Koşullar' %}</h3>
-                    <p>Here are the terms and conditions you must agree to...</p>
-                    <button id="accept-terms" class="btn btn-primary">Kabul Ediyorum</button>
+                <!-- Modal -->
+                <div id="terms-modal" class="modal form-group">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h3>{% trans 'Şartlar ve Koşullar' %}</h3>
+                        <p>Here are the terms and conditions you must agree to...</p>
+                        <button id="accept-terms" class="btn btn-primary">Kabul Ediyorum</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group recaptcha-container">
+                <div class="form-group recaptcha-container">
                     {{ form.recaptcha }}
                 </div>
 
-            <!-- Kayıt Butonu -->
-            <div class="form-group form-button">
-                <input type="submit" name="signup" id="signup" class="btn btn-lg btn-success form-submit"
-                       value="{% trans 'Kayıt Ol' %}"/>
+                <!-- Kayıt Butonu -->
+                <div class="form-group form-button">
+                    <input type="submit" name="signup" id="signup" class="btn btn-lg btn-success form-submit"
+                           value="{% trans 'Kayıt Ol' %}"/>
+                </div>
+                <div class="form-group form-button ">
+                    <a class="btn btn-outline-info flex-md-shrink-0"
+                       href="{% url 'login' %}">{% trans 'Hesabım Var - Giriş Yap' %}</a>
+                </div>
             </div>
-            <div class="form-group form-button ">
-                <a class="btn btn-outline-info flex-md-shrink-0" href="{% url 'login' %}">{% trans 'Hesabım Var - Giriş Yap' %}</a>
-            </div>
-        </div>
-    </form>
+        </form>
 
-
+    </div>
     </div>
 
     </section>
@@ -193,13 +196,13 @@
 
 {% block extra_scripts %}
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const firstInput = document.querySelector("#{{ form.first_name.id_for_label }}");
-        if (firstInput) {
-            firstInput.focus();
-        }
-    });
-</script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const firstInput = document.querySelector("#{{ form.first_name.id_for_label }}");
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const termsModal = document.getElementById("terms-modal");
@@ -297,6 +300,60 @@
             field.addEventListener("blur", () => {
                 passwordHelp.style.display = "none";
             });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const password1 = document.getElementById("id_password1");
+            const password2 = document.getElementById("id_password2");
+            const passwordHelp = document.getElementById("password-help");
+
+            const checkPasswordStrength = (password) => {
+                let strength = 0;
+                if (password.length >= 8) strength += 1; // Uzunluk
+                if (/[A-Z]/.test(password)) strength += 1; // Büyük harf
+                if (/[a-z]/.test(password)) strength += 1; // Küçük harf
+                if (/[0-9]/.test(password)) strength += 1; // Rakam
+                if (/[@$!%*?&#]/.test(password)) strength += 1; // Özel karakter
+
+                return strength;
+            };
+
+            const updatePasswordHelp = () => {
+                const strength = checkPasswordStrength(password1.value);
+                const requirements = [
+                    password1.value.length >= 8,
+                    /[A-Z]/.test(password1.value),
+                    /[a-z]/.test(password1.value),
+                    /[0-9]/.test(password1.value),
+                    /[@$!%*?&#]/.test(password1.value)
+                ];
+
+                passwordHelp.innerHTML = `
+                <ul>
+                    <li style="color: ${requirements[0] ? "green" : "red"}">En az 8 karakter</li>
+                    <li style="color: ${requirements[1] ? "green" : "red"}">En az bir büyük harf</li>
+                    <li style="color: ${requirements[2] ? "green" : "red"}">En az bir küçük harf</li>
+                    <li style="color: ${requirements[3] ? "green" : "red"}">En az bir rakam</li>
+                    <li style="color: ${requirements[4] ? "green" : "red"}">En az Bir özel karakter. (@$!%*?&#)</li>
+                </ul>
+            `;
+            };
+
+            const checkPasswordMatch = () => {
+                if (password2.value === password1.value && password1.value !== "") {
+                    password2.style.borderColor = "green";
+                } else {
+                    password2.style.borderColor = "red";
+                }
+            };
+
+            password1.addEventListener("input", () => {
+                updatePasswordHelp();
+                checkPasswordMatch();
+            });
+
+            password2.addEventListener("input", checkPasswordMatch);
         });
     </script>
 

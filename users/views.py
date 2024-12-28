@@ -127,7 +127,7 @@ def profile_edit(request):
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'users/password_reset.html'
     email_template_name = 'users/password_reset_email.html'
-    success_url = reverse_lazy('users:password_reset_done')
+    success_url = reverse_lazy('password_reset_done')
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
