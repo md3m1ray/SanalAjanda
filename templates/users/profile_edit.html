@@ -17,7 +17,7 @@
 
     </div><!-- End Section Title -->
 
-    <div class="container" >
+    <div class="container">
 {% endblock %}
 {% block d_content %}
     <!-- Main Content -->
@@ -29,7 +29,8 @@
                 <div class="col-lg-3 border-end">
                     <div class="p-4">
                         <div class="nav flex-column nav-pills">
-                            <a class="nav-link active" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel Bilgiler</a>
+                            <a class="nav-link active" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel
+                                Bilgiler</a>
                             <a class="nav-link " href="{% url 'profile_security' %}"><i
                                     class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
                             <a class="nav-link" href="{% url 'profile_membership' %}"><i
@@ -45,7 +46,7 @@
                     <div class="p-4">
                         <!-- Personal Information -->
                         <div class="mb-4">
-                            <h5 class="mb-4">Personal Information</h5>
+                            <h5 class="mb-4">Kişisel Bilgiler</h5>
                             <form method="post">
                                 {% csrf_token %}
                                 <div class="row g-3">
@@ -61,22 +62,22 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label">Email</label>
+                                        <label class="form-label">E-Posta</label>
                                         {{ form.email }}
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">First Name</label>
+                                        <label class="form-label">İsim</label>
                                         {{ form.first_name }}
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Last Name</label>
+                                        <label class="form-label">Soyisim</label>
                                         {{ form.last_name }}
                                     </div>
                                     <br>
-<div class="col-md-6">
-                                    <button type="submit" class="btn btn-success">Bilgileri Kaydet</button>
-                                    <a href="{% url 'profile' %}" class="btn btn-danger">Iptal Et</a>
-</div>
+                                    <div class="col-md-6">
+                                        <button type="submit" class="btn btn-success">Bilgileri Kaydet</button>
+                                        <a href="{% url 'profile' %}" class="btn btn-danger">Iptal Et</a>
+                                    </div>
 
                                 </div>
                             </form>

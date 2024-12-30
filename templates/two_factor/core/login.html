@@ -1,0 +1,191 @@
+{% extends "two_factor/_base.html" %}
+{% load i18n %}
+{% load two_factor_tags %}
+
+{% block header %}
+
+    <title>{{ index_site_title }}</title>
+    <style>
+        .form-container {
+            display: flex;
+            justify-content: center;
+            min-height: 30vh;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-button {
+            text-align: center;
+        }
+
+        .messages {
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ff4242;
+
+        }
+
+
+        .btn-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+
+{% endblock %}
+{% block extra_media %}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+    <section id="login" class="section" style="padding-top: 155px; scroll-margin-top: 98px;
+    overflow: clip">
+
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>{% trans 'Giriş' %}</h2>
+
+    </div><!-- End Section Title -->
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+{% endblock %}
+{% block d_content %}
+
+    <div class=" form-container">
+        <form method="POST" class="login-form form-control" id="login-form">
+
+            {% csrf_token %}
+            {{ wizard.management_form }}
+
+            {% if wizard.steps.current == 'auth' %}
+                <!-- E-posta Alanı -->
+                <div class="mb-3 form-group">
+                    <label for="id_auth-username" class="form-label">E-posta</label>
+
+                    <input
+                            type="email"
+                            autocapitalize="none"
+                            name="auth-username"
+                            id="id_auth-username"
+                            class="form-control"
+                            autocomplete="username"
+                            maxlength="254"
+                            required
+                            placeholder="E-posta adresinizi giriniz"
+                            value="{{ wizard.form.username.value|default:'' }}"
+                    >
+                </div>
+
+                <!-- Şifre Alanı -->
+                <div class="mb-3 form-group">
+                    <label for="id_auth-password" class="form-label">Şifre</label>
+
+                    <input
+                            type="password"
+                            class="form-control"
+                            placeholder="Şifrenizi giriniz"
+                            name="auth-password"
+                            autocomplete="current-password"
+                            required
+                            id="id_auth-password"
+                    >
+                </div>
+            {% elif wizard.steps.current == 'token' %}
+                <!-- Doğrulama Kodu Alanı -->
+                <div class="mb-3 form-group">
+                    <label for="id_token-otp_token" class="form-label">Doğrulama Kodu</label>
+
+                    <input
+                            type="text"
+                            name="token-otp_token"
+                            maxlength="6"
+                            minlength="6"
+                            autofocus="autofocus"
+                            pattern="[0-9]*"
+                            autocomplete="one-time-code"
+                            id="id_token-otp_token"
+
+                    >
+                </div>
+            {% elif wizard.steps.current == 'backup' %}
+                <div class="mb-3 form-group">
+                    <label for="backup-otp_token" class="form-label">Backup Token</label>
+
+                    <input type="text" name="backup-otp_token" id="id_backup-otp_token">
+                </div>
+                <p>{% blocktrans trimmed %}Oturum açmak için yedek belirteçleri girmek üzere bu formu kullanın.
+                    Bu jetonlar, yazdırmanız ve güvende tutmanız için oluşturulmuştur. Güvenli olarak saklamak sizin
+                    sorumluluğunuzdadır. Lütfen
+                    hesabınıza giriş yapmak için bu yedek jetonlardan birini girin.{% endblocktrans %}</p>
+
+            {% endif %}
+
+            <!-- Gönder Butonu -->
+            <div class="d-flex justify-content-between align-items-center form-group form-button">
+                <button type="submit" class="btn btn-primary ">
+                    {% if wizard.steps.current == 'auth' %}{% trans "Giriş Yap" %}{% else %}{% trans "Doğrula" %}{% endif %}
+                </button>
+                {% if wizard.steps.current == 'auth' %}
+                    <a href="{% url 'password_reset' %}" class="btn btn-link ">{% trans "Şifremi Unuttum" %}</a>
+
+                {% elif wizard.steps.current == 'backup' or wizard.steps.current == 'token' %}
+
+                    <button name="wizard_goto_step" type="submit"
+                            value="{{ wizard.steps.prev }}"
+                            class="btn btn-secondary">{% trans "Geri" %}</button>
+
+                {% endif %}
+
+            </div>
+            <input type="submit" value="" hidden/>
+            {% if wizard.steps.current == 'auth' %}
+                <div class="form-group form-button">
+                    <a class="btn btn-outline-info" href="{% url 'register' %}">{% trans 'Hesabım Yok - Kayıt Ol' %}</a>
+                </div>
+
+            {% endif %}
+
+            {% if backup_tokens %}
+                <hr>
+                <div class="backup_tokens_form">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <p>{% trans "Backup Token Kullanabilirsin:" %}</p>
+                        <p>
+                            <button name="wizard_goto_step" type="submit" value="backup"
+                                    class="btn btn-sm btn-secondary btn-block">{% trans "Backup Token Kullan" %}</button>
+                        </p>
+                    </form>
+                </div>
+            {% endif %}
+        </form>
+
+
+    </div>
+    </div>
+
+
+    </section>
+{% endblock %}

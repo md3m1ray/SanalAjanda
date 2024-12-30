@@ -1,0 +1,125 @@
+{% extends "two_factor/_base.html" %}
+{% load i18n %}
+{% load two_factor_tags %}
+
+{% block header %}
+
+    <title>{{ index_site_title }}</title>
+    <style>
+        .form-container {
+            display: flex;
+            justify-content: center;
+            min-height: 30vh;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-button {
+            text-align: center;
+        }
+
+        .messages {
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ff4242;
+
+        }
+
+
+        .btn-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+
+{% endblock %}
+{% block extra_media %}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+    <section id="login" class="section" style="padding-top: 155px; scroll-margin-top: 98px;
+    overflow: clip">
+
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>{% trans '2FA Doğrulama Ayarları' %}</h2>
+
+    </div><!-- End Section Title -->
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+{% endblock %}
+{% block d_content %}
+
+    <div class=" form-container">
+        <form method="POST" class="login-form form-control" id="login-form">
+
+            {% csrf_token %}
+            {{ wizard.management_form }}
+
+
+            {% if wizard.steps.current == 'welcome' %}
+                <div class="mb-3 form-group">
+                    <label for="backup-otp_token" class="form-label">Backup Token</label>
+
+                    <input type="hidden" name="setup_view-current_step" value="welcome" id="id_setup_view-current_step">
+                </div>
+                <p>{% blocktrans trimmed %}Hesabınızın güvenliğini sonraki seviyeye almak üzeresiniz.
+                    İki faktörlü doğrulama özelliği etkinleştirmek için bu sihirbazdaki adımları
+                    izleyiniz.{% endblocktrans %}</p>
+
+            {% elif wizard.steps.current == 'generator' %}
+
+                <p>{% blocktrans trimmed %}Token oluşturucuyu kullanmaya başlamak için lütfen
+                    Aşağıdaki QR kodunu taramak için akıllı telefonunuzu kullanın. Örneğin : Google Authenticator
+                    Programı.{% endblocktrans %}</p>
+                <p><img src="{{ QR_URL }}" alt="QR Code" class="bg-white"/></p>
+                <p>{% blocktrans trimmed %}Alternatif olarak aşağıdaki kodu kullanabilirsiniz.
+                    Kimlik doğrulayıcınızda veya şifre yöneticinizde TOTP kodunu manuel olarak
+                    ayarlayın.{% endblocktrans %}</p>
+                <p>{% translate "TOTP Secret Kodu:" %} <a href="{{ otpauth_url }}">{{ secret_key }}</a></p>
+                <p>{% blocktrans %}Ardından uygulama tarafından oluşturulan Tokeni girin.{% endblocktrans %}</p>
+                <div class="mb-3 form-group">
+
+                    <input type="hidden" name="setup_view-current_step" value="generator"
+                           id="id_setup_view-current_step">
+                    <label for="id_generator-token" class="form-label">Token :</label>
+                    <input type="number" name="generator-token" min="0" max="999999" autofocus="autofocus"
+                           inputmode="numeric" autocomplete="one-time-code" maxlength="6" required
+                           id="id_generator-token">
+                </div>
+
+            {% endif %}
+
+            {% include "two_factor/_wizard_actions.html" %}
+
+            <input type="submit" value="" hidden/>
+
+        </form>
+    </div>
+    </div>
+
+    </section>
+{% endblock %}

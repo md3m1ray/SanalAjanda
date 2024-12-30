@@ -220,11 +220,6 @@ class PasswordChangeForm(forms.Form):
 
 
 # Üyelik Yükseltme Formu
-from django import forms
-from users.models import User
-
-
-# Üyelik Yükseltme Formu
 class MembershipUpgradeForm(forms.ModelForm):
     class Meta:
         model = User
@@ -278,3 +273,4 @@ class LoginForm(forms.Form):
         required=False,
         label="Beni hatırla",
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
+

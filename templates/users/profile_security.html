@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 
 {% block header %}
@@ -75,7 +76,8 @@
                 <div class="col-lg-3 border-end">
                     <div class="p-4">
                         <div class="nav flex-column nav-pills">
-                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel Bilgiler</a>
+                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel
+                                Bilgiler</a>
                             <a class="nav-link active" href="{% url 'profile_security' %}"><i
                                     class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
                             <a class="nav-link" href="{% url 'profile_membership' %}"><i
@@ -100,8 +102,14 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-1">2FA Doğrulama Ayarı</h6>
-                                                <p class="text-muted mb-0 small">Güvenliğiniz İçin Google Auth Aktifleştirin</p>
+                                                <h6 class="mb-1">İki Faktörlü Hesap Kimlik Doğrulama</h6>
+                                                {% if not user.is_2fa_enabled %}
+                                                    <p class="text-muted mb-0 small">Güvenliğiniz İçin Google Auth
+                                                        Aktifleştirin</p>
+                                                {% else %}
+                                                   <a href="{% url 'two_factor:profile' %}"
+                                                       class="btn btn-sm btn-link" style="margin: 0; padding: 0">{% trans "2FA Ayarları" %}</a>
+                                                {% endif %}
                                             </div>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" id="twoFactor"
@@ -118,7 +126,8 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <h6 class="mb-1">E-Posta Bildirimleri</h6>
-                                                <p class="text-muted mb-0 small">Ajanda Not ve Güncelleme Bildirimlerini Alın
+                                                <p class="text-muted mb-0 small">Ajanda Not ve Güncelleme Bildirimlerini
+                                                    Alın
                                                 </p>
                                             </div>
                                             <div class="form-check form-switch">
@@ -165,16 +174,21 @@
                                                 <p id="password-strength-text" class="mt-1">Şifre Gücü : Zayıf</p>
                                             </div>
                                             <ul class="password-requirements list-unstyled">
-                                                <li class="password-requirement invalid" data-requirement="length">En az 8 Karakter
+                                                <li class="password-requirement invalid" data-requirement="length">En az
+                                                    8 Karakter
                                                     Giriniz.
                                                 </li>
-                                                <li class="password-requirement invalid" data-requirement="uppercase">En az bir Büyük Harf
+                                                <li class="password-requirement invalid" data-requirement="uppercase">En
+                                                    az bir Büyük Harf
                                                 </li>
-                                                <li class="password-requirement invalid" data-requirement="lowercase">En az bir Küçük Harf
+                                                <li class="password-requirement invalid" data-requirement="lowercase">En
+                                                    az bir Küçük Harf
                                                 </li>
-                                                <li class="password-requirement invalid" data-requirement="number">En az bir Rakam
+                                                <li class="password-requirement invalid" data-requirement="number">En az
+                                                    bir Rakam
                                                 </li>
-                                                <li class="password-requirement invalid" data-requirement="special">En az bir Özel Karakter !@#$%^&*(),.?":{}|<>
+                                                <li class="password-requirement invalid" data-requirement="special">En
+                                                    az bir Özel Karakter !@#$%^&*(),.?":{}|<>
                                                 </li>
                                             </ul>
                                         </div>
@@ -300,7 +314,7 @@
                 location.href = "{% url 'two_factor:setup' %}";
             } else {
                 // 2FA'yı devre dışı bırakmadan önce onay alın
-                if (confirm("Two-Factor Authentication'ı devre dışı bırakmak istediğinizden emin misiniz?")) {
+                if (confirm("Güvenliğiniz için bunu yapmanızı şiddetle tavsiye etmiyoruz, Two-Factor Authentication'ı devre dışı bırakmak istediğinizden emin misiniz?")) {
                     location.href = "{% url 'disable_two_factor' %}";
                 } else {
                     checkbox.checked = true; // İşlem iptal edilirse geri eski durumuna çevir

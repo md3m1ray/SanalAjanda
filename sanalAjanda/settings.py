@@ -38,6 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 INSTALLED_APPS += ['django_otp', 'django_otp.plugins.otp_totp', 'django_otp.plugins.otp_static',
@@ -46,8 +47,11 @@ INSTALLED_APPS += ['django_otp', 'django_otp.plugins.otp_totp', 'django_otp.plug
 MIDDLEWARE += ['django_otp.middleware.OTPMiddleware']
 
 LOGIN_URL = 'two_factor:login'
-LOGOUT_REDIRECT_URL = 'index'
 LOGIN_REDIRECT_URL = 'profile'
+LOGOUT_REDIRECT_URL = 'index'
+TWO_FACTOR_LOGIN_VIEW = 'two_factor:login'
+TWO_FACTOR_QR_FACTORY = 'qrcode.image.svg.SvgImage'
+
 
 ROOT_URLCONF = 'sanalAjanda.urls'
 
@@ -125,5 +129,6 @@ SITE_URL = "https://sanalajanda.com"
 # reCAPTCHA Ayarları
 RECAPTCHA_PUBLIC_KEY = env('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
+RECAPTCHA_REQUIRED_SCORE = 0.85  # reCAPTCHA v3 için doğruluk puanı
 
 AUTH_USER_MODEL = 'users.User'

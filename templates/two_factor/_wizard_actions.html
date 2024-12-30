@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% if cancel_url %}
+  <a href="{{ cancel_url }}"
+     class="float-right btn btn-link form-button form-group">{% trans "Vazgeç" %}</a>
+{% endif %}
+{% if wizard.steps.prev %}
+  <button name="wizard_goto_step" type="submit"
+          value="{{ wizard.steps.prev }}"
+          class="btn btn-secondary form-button form-group">{% trans "Geri" %}</button>
+{% else %}
+  <button disabled name="" type="button" class="btn form-button form-group">{% trans "Geri" %}</button>
+{% endif %}
+<button type="submit" class="btn btn-primary form-button form-group">{% trans "İleri" %}</button>

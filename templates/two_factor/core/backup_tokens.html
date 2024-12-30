@@ -1,0 +1,84 @@
+{% extends "two_factor/_base.html" %}
+{% load i18n %}
+{% load two_factor_tags %}
+
+{% block header %}
+
+    <title>{{ index_site_title }}</title>
+    <style>
+        .form-container {
+            display: flex;
+            justify-content: center;
+            min-height: 15vh;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <section id="login" class="section" style="padding-top: 155px; scroll-margin-top: 98px;
+    overflow: clip">
+
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>{% trans 'Backup Tokens / Yedek Kurtarma Jetonları' %}</h2>
+
+    </div><!-- End Section Title -->
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+{% endblock %}
+{% block d_content %}
+
+    <div class="form-container">
+        <div class="login-form form-control">
+            <div class="mb-3 form-group">
+
+                <p>{% blocktrans trimmed %}Aşağıdaki yedekleme jetonları giriş doğrulaması için kullanılabilir.
+                    Yedek jetonlarınızın tamamını kullandıysanız yeni bir yedek token seti oluşturabilirsiniz. Yalnızca
+                    gösterilen yedekleme belirteçleri
+                    girişte geçerli olacaktır.{% endblocktrans %}</p>
+
+                {% if device.token_set.count %}
+                    <ul>
+                        {% for token in device.token_set.all %}
+                            <li>{{ token.token }}</li>
+                        {% endfor %}
+                    </ul>
+                    <p>{% blocktrans %}Bu jetonları yazdırın ve güvenli bir yerde saklayın.{% endblocktrans %}</p>
+                {% else %}
+                    <p>{% trans "Henüz yedek kodunuz yok." %}</p>
+                {% endif %}
+
+                <form method="post">{% csrf_token %}{{ form.as_p }}
+
+                    <button class="btn btn-primary" type="submit">{% trans "Token Oluştur" %}</button>
+                </form>
+
+
+            </div>
+        <div class="form-group form-button">
+                    <a href="{% url 'two_factor:profile' %}"
+                       class="btn btn-outline-info">{% trans "2FA Doğrulama Ayarlarına Dön" %}</a>
+                    <a class="btn btn-outline-success" href="{% url 'profile_security' %}">{% trans 'Profile Dön' %}</a>
+                </div>
+        </div>
+    </div>
+    </div>
+
+    </section>
+{% endblock %}

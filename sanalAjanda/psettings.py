@@ -28,8 +28,6 @@ INSTALLED_APPS = [
     'django_recaptcha'
 ]
 
-INSTALLED_APPS += ['django_otp', 'django_otp.plugins.otp_totp', 'qrcode', 'django_otp.plugins.otp_static', 'two_factor']
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -38,13 +36,19 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_otp.middleware.OTPMiddleware'
+
 ]
 
+INSTALLED_APPS += ['django_otp', 'django_otp.plugins.otp_totp', 'django_otp.plugins.otp_static',
+                   'qrcode', 'two_factor']
+
+MIDDLEWARE += ['django_otp.middleware.OTPMiddleware']
 
 LOGIN_URL = 'two_factor:login'
-LOGOUT_REDIRECT_URL = 'index'
 LOGIN_REDIRECT_URL = 'profile'
+LOGOUT_REDIRECT_URL = 'index'
+TWO_FACTOR_LOGIN_VIEW = 'two_factor:login'
+TWO_FACTOR_QR_FACTORY = 'qrcode.image.svg.SvgImage'
 
 ROOT_URLCONF = 'sanalAjanda.urls'
 

@@ -11,10 +11,11 @@ from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 )
 from .forms import LoginForm, RegistrationForm, UserProfileForm
-from django_otp import devices_for_user
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm , SetPasswordForm
+
+from django.contrib.auth.decorators import login_required
 
 
 # Kullanıcı Kayıt
@@ -39,26 +40,7 @@ def register(request):
 
 # Kullanıcı Giriş
 def login_view(request):
-    next_url = request.GET.get('next', 'profile')  # 'next' parametresi
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                # Kullanıcı giriş yapıyor
-                login(request, user)
-                # Eğer kullanıcının 2FA cihazı varsa doğrulama sayfasına yönlendirilir
-                if any(dev.confirmed for dev in devices_for_user(user)):
-                    return redirect('two_factor:login')
-                # 2FA etkin değilse direkt giriş yapılır
-                return redirect('profile')
-            else:
-                form.add_error(None, 'Geçersiz giriş bilgileri')
-    else:
-        form = LoginForm()
-    return render(request, 'users/login.html', {'form': form})
+    return redirect('two_factor:login' )
 
 
 # Kullanıcı Çıkış
