@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPa
 from .models import User
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
+from .models import Secretary
+
 
 # Kullanıcı Kayıt Formu
 class RegistrationForm(UserCreationForm):
@@ -181,6 +183,7 @@ class CustomSetPasswordForm(SetPasswordForm):
         help_text="Yeni şifrenizi tekrar girin.",
     )
 
+
 class PasswordChangeForm(forms.Form):
     current_password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Current Password'}),
@@ -229,30 +232,28 @@ class MembershipUpgradeForm(forms.ModelForm):
             'requested_duration': forms.Select(attrs={'class': 'form-control'}),
         }
 
-    def clean_membership_type(self):
-        cleaned_data = super().clean()
-        requested_membership_type = cleaned_data.get('requested_membership_type')
-        requested_duration = cleaned_data.get('requested_duration')
+    def clean_requested_membership_type(self):
+        """Üyelik tipi doğrulama."""
+        requested_membership_type = self.cleaned_data.get('requested_membership_type')
         current_type = self.instance.membership_type
         email = self.instance.email
 
-        if current_type == 'standard':
-            # Eğer kullanıcı "standard" üyelikteyse, hem üyelik tipi hem de süre zorunlu
-            if not requested_membership_type:
-                raise forms.ValidationError("Üyelik tipi seçmelisiniz.")
-            if not requested_duration:
-                raise forms.ValidationError("Üyelik süresi seçmelisiniz.")
-            if requested_membership_type == 'enterprise' and not email.endswith('@edu.tr'):
-                raise forms.ValidationError(
-                    "Öğrenci üyelik tipini seçebilmek için '@edu.tr' uzantılı bir e-posta adresine sahip olmalısınız.")
-        else:
-            # Eğer kullanıcının zaten aktif bir üyeliği varsa, sadece süre uzatma yapılabilir
-            if not requested_duration:
-                raise forms.ValidationError("Süre uzatma talebi için süre seçmelisiniz.")
-            if requested_membership_type and requested_membership_type != current_type:
-                raise forms.ValidationError("Mevcut üyelik türünüzü değiştiremezsiniz.")
-        return cleaned_data
+        if not requested_membership_type and current_type == 'standard':
+            raise forms.ValidationError("Üyelik tipi seçmelisiniz.")
+        if requested_membership_type == 'standard':
+            raise forms.ValidationError("Standart üyelik seçilemez.")
+        if requested_membership_type == current_type:
+            raise forms.ValidationError("Mevcut üyelik tipinizle aynı paketi seçemezsiniz.")
+        if requested_membership_type == 'enterprise' and not email.endswith('.edu.tr'):
+            raise forms.ValidationError("Öğrenci üyelik tipini seçmek için '@edu.tr' uzantılı bir e-posta adresine sahip olmalısınız.")
+        return requested_membership_type
 
+    def clean_requested_duration(self):
+        """Üyelik süresi doğrulama."""
+        requested_duration = self.cleaned_data.get('requested_duration')
+        if not requested_duration:
+            raise forms.ValidationError("Üyelik süresi seçmek zorunludur.")
+        return requested_duration
 
 # Profil Güncelleme Formu
 class UserProfileForm(forms.ModelForm):
@@ -274,3 +275,68 @@ class LoginForm(forms.Form):
         label="Beni hatırla",
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
 
+
+class ActivityFilterForm(forms.Form):
+    start_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Başlangıç Tarihi"
+    )
+    end_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Bitiş Tarihi"
+    )
+    action = forms.CharField(
+        required=False,
+        max_length=255,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'İşlem türünü giriniz'}),
+        label="İşlem Türü"
+    )
+
+
+class SecretaryForm(forms.ModelForm):
+    class Meta:
+        model = Secretary
+        fields = ['username', 'password']
+        widgets = {
+            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.master_user = kwargs.pop('master_user', None)
+        super().__init__(*args, **kwargs)
+
+        # Kullanıcı adı düzenleme sırasında sadece ana kısmı gösterilir
+        if self.instance and self.instance.pk:
+            full_username = self.instance.username
+            email_suffix = f"-{self.master_user.email}"
+            if full_username.endswith(email_suffix):
+                username_without_email = full_username[: -len(email_suffix)]
+                self.initial['username'] = username_without_email  # Initial değer
+                self.fields['username'].widget.attrs.update({'value': username_without_email})  # Widget value
+
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        full_username = f"{username}-{self.master_user.email}"
+
+        # Mevcut kullanıcı adı hariç aynı kullanıcı adı olup olmadığını kontrol et
+        if Secretary.objects.filter(username=full_username).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Bu kullanıcı adı zaten mevcut.")
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.master_user and self.master_user.secretaries.count() >= 3 and not self.instance.pk:
+            raise forms.ValidationError("En fazla 3 sekreter oluşturabilirsiniz.")
+        return cleaned_data
+
+    def save(self, commit=True):
+        username = self.cleaned_data.get('username')
+        instance = super().save(commit=False)
+        instance.username = f"{username}-{self.master_user.email}"  # Sekreter kullanıcı adı
+        instance.master_user = self.master_user
+        if commit:
+            instance.save()
+        return instance

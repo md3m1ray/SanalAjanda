@@ -4,6 +4,10 @@ from django.utils.timezone import now
 from django_otp.models import Device
 from django_otp.plugins.otp_static.models import StaticDevice
 from django_otp.plugins.otp_totp.models import TOTPDevice
+from django.contrib.auth.models import User
+from model_utils.models import StatusModel, TimeStampedModel
+from model_utils import FieldTracker
+from django.contrib.auth.hashers import make_password, check_password
 
 
 class CustomUserManager(BaseUserManager):
@@ -80,11 +84,25 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=False,
         verbose_name="Email Bildirimlerini Aç/Kapat"
     )
+    email_sending_disabled = models.BooleanField(
+        default=True,
+        verbose_name="Yarın Not olmasa bile E-posta gönderilsin",
+    )  # 'not yoksa E-posta gönderilmesin' seçeneği
+
+    # İzlenecek alanları belirtiyoruz
+    tracker = FieldTracker(fields=[
+        'email_notifications_enabled',
+        'is_2fa_enabled',
+        'requested_duration',
+        'requested_membership_type',
+        'is_membership_approved'
+    ])
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # Superuser creation requires no additional fields
+
 
     def is_membership_expired(self):
         """Check if the user's membership has expired."""
@@ -129,3 +147,29 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = "Kullanıcı Profili"
         verbose_name_plural = "Kullanıcı Profilleri"
+
+
+class UserActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activity_logs')
+    action = models.CharField(max_length=255)  # Kullanıcının yaptığı işlem açıklaması
+    timestamp = models.DateTimeField(default=now)  # İşlem zamanı
+
+    def __str__(self):
+        return f"{self.user.email} - {self.action} - {self.timestamp}"
+
+
+class Secretary(models.Model):
+    master_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="secretaries")
+    username = models.CharField(max_length=255, unique=True)  # Sekreter kullanıcı adı
+    password = models.CharField(max_length=255)  # Şifre (şifrelenmiş tutulabilir)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Yeni oluşturuluyorsa şifreyi hashle
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
+
+    def __str__(self):
+        return f"{self.username} (Üst Kullanıcı: {self.master_user.email})"

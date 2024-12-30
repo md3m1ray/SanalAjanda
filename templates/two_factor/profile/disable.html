@@ -51,7 +51,10 @@
                     hesabınızın güvenliğini zayıflatır, emin misiniz?{% endblocktrans %}</p>
                 <form method="post">
                     {% csrf_token %}
-                    <table>{{ form.as_table }}</table>
+                    <table>
+                        <label for="id_understand">Evet, Eminim : &nbsp</label>
+                        <input type="checkbox" name="understand" required="" id="id_understand">
+                    </table>
                     <button class="btn btn-danger"
                             type="submit">{% trans "Devre Dışı Bırak" %}</button>
 

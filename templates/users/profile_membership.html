@@ -13,7 +13,7 @@
 
     <!-- Section Title -->
     <div class="container section-title" data-aos="fade-up">
-        <h2>Profil</h2>
+        <h2>Profil - Üyelik Paketi Ayarları</h2>
 
     </div><!-- End Section Title -->
 
@@ -31,11 +31,14 @@
                 <div class="col-lg-3 border-end">
                     <div class="p-4">
                         <div class="nav flex-column nav-pills">
-                             <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel Bilgiler</a>
+                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel
+                                Bilgiler</a>
                             <a class="nav-link " href="{% url 'profile_security' %}"><i
                                     class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
                             <a class="nav-link active" href="{% url 'profile_membership' %}"><i
                                     class="fas fa-credit-card me-2"></i>Üyelik Paketi Ayarları</a>
+                            <a class="nav-link " href="{% url 'profile_secretaries' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Sekreter Yönetimi</a>
                             <a class="nav-link" href="{% url 'profile_activity' %}"><i
                                     class="fas fa-chart-line me-2"></i>Yapılan İşlemler</a>
                         </div>
@@ -47,85 +50,91 @@
                     <div class="p-4">
                         <!-- Personal Information -->
                         <div class="mb-4">
-                            <h5 class="mb-4">Personal Information</h5>
+                            <h5 class="mb-4">Üyelik Paketi Ayarları</h5>
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <br>
-                                    <center><label class="form-label">Uyelik
-                                        Paketi: <strong>{{ user.get_membership_type_display }}</strong> </label><br>
-                                        {% if user.membership_expiry %}
-                                            <label class="form-label">Bitis Tarihi
-                                                : <strong>{{ user.membership_expiry|date:"d M Y" }}</strong></label>
+                                <form method="post" id="membershipForm" action="{% url 'profile_membership' %}">
+                                    {% csrf_token %}
+
+                                    {% if user.membership_type == 'standard' %}
+                                        {% if user.requested_membership_type %}
+                                            <p>Mevcut Üyelik Tipi:
+                                                <strong>{{ user.get_membership_type_display }}</strong></p>
+                                            <p>Uyeliginizi yukseltme talebiniz bulunmaktadir onaylandiginda daha fazla
+                                                ozellikten
+                                                faydalanabilirsiniz</p>
+                                            <p>Talep edilen paket : {{ user.get_requested_membership_type_display }}</p>
+                                            <p>Talep edilen sure : {{ user.get_requested_duration_display }}</p>
+
+                                        {% else %}
+                                            <p>Mevcut Üyelik Tipi:
+                                                <strong>{{ user.get_membership_type_display }}</strong></p>
+                                            <p>Uyeliginizi yukselterek daha fazla ozellikten faydalanabilirsiniz</p>
+                                            <!-- Üyelik tipi ve süre seçimi göster -->
+                                            <div class="form-group">
+                                                <label for="id_requested_membership_type">Üyelik Tipi</label>
+                                                <select id="id_requested_membership_type"
+                                                        name="requested_membership_type" class="form-control">
+                                                    {% for key, value in form.fields.requested_membership_type.choices %}
+                                                        <option value="{{ key }}"
+                                                                {% if form.initial.requested_membership_type == key %}selected{% endif %}>
+                                                            {{ value }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <small id="membershipTypeError" class="text-danger"></small>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="id_requested_duration">Üyelik Süresi</label>
+                                                <select id="id_requested_duration" name="requested_duration"
+                                                        class="form-control">
+                                                    {% for key, value in form.fields.requested_duration.choices %}
+                                                        <option value="{{ key }}"
+                                                                {% if form.initial.requested_duration == key %}selected{% endif %}>
+                                                            {{ value }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <small id="durationError" class="text-danger"></small>
+                                            </div>
                                         {% endif %}
-                                    </center>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" disabled value={{ user.email }}>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">First Name</label>
-                                    <input type="text" class="form-control" disabled value={{ user.first_name }}>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" disabled value={{ user.last_name }}>
-                                </div>
+                                    {% else %}
 
+                                        {% if user.requested_duration %}
+                                            <p>Mevcut Üyelik Tipi:
+                                                <strong>{{ user.get_membership_type_display }}</strong></p>
+                                            <p>Paket Bitiş Tarihi:
+                                                <strong>{{ user.membership_expiry|date:"d/m/Y" }}</strong></p>
+                                            <p>Uyelik surenizi uzatma talebiniz bulunmaktadir onaylandiginda daha fazla
+                                                ozellikten
+                                                faydalanabilirsiniz</p>
 
-                            </div>
-                        </div>
+                                            <p>Talep edilen süre : {{ user.get_requested_duration_display }}</p>
+                                            <br>
+                                            <div class="form-group">
+                                                <label for="id_requested_duration">Süre Uzatma Talebini Değiştir</label>
+                                                <br>
+                                                {{ form.requested_duration }}
+                                            </div>
 
-                        <!-- Settings Cards -->
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-6">
-                                <div class="settings-card card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-1">Two-Factor Authentication</h6>
-                                                <p class="text-muted mb-0 small">Add an extra layer of
-                                                    security</p>
+                                        {% else %}
+                                            <!-- Sadece süre seçimi -->
+                                            <p>Mevcut Üyelik Tipi:
+                                                <strong>{{ user.get_membership_type_display }}</strong></p>
+                                            <p>Paket Bitiş Tarihi:
+                                                <strong>{{ user.membership_expiry|date:"d/m/Y" }}</strong></p>
+                                            <div class="form-group">
+                                                <label for="id_requested_duration">Süre Uzatma Talebi</label>
+                                                {{ form.requested_duration }}
                                             </div>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="settings-card card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-1">Email Notifications</h6>
-                                                <p class="text-muted mb-0 small">Receive activity updates
-                                                </p>
-                                            </div>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if not user.requested_membership_type %}
+                                        <br>
+                                        <button type="submit" class="btn btn-primary">Talep Oluştur</button>
+                                    {% endif %}
+                                </form>
 
-                        <!-- Recent Activity -->
-                        <div>
-                            <h5 class="mb-4">Recent Activity</h5>
-                            <div class="activity-item mb-3">
-                                <h6 class="mb-1">Updated profile picture</h6>
-                                <p class="text-muted small mb-0">2 hours ago</p>
-                            </div>
-                            <div class="activity-item mb-3">
-                                <h6 class="mb-1">Changed password</h6>
-                                <p class="text-muted small mb-0">Yesterday</p>
-                            </div>
-                            <div class="activity-item">
-                                <h6 class="mb-1">Updated billing information</h6>
-                                <p class="text-muted small mb-0">3 days ago</p>
                             </div>
                         </div>
                     </div>
@@ -135,7 +144,50 @@
     </div>
     </div>
 
-
     </section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+
+    <script>
+        document.getElementById("membershipForm").addEventListener("submit", function (event) {
+            // Form alanlarını seç
+            const membershipType = document.getElementById("id_requested_membership_type");
+            const duration = document.getElementById("id_requested_duration");
+            const membershipTypeError = document.getElementById("membershipTypeError");
+            const durationError = document.getElementById("durationError");
+
+            // Hatalar için değişkenleri temizle
+            let hasErrors = false;
+            membershipTypeError.textContent = "";
+            durationError.textContent = "";
+
+            // Standart üyelik kontrolü
+            if (membershipType.value === "standard") {
+                membershipTypeError.textContent = "Standart üyelik seçilemez.";
+                hasErrors = true;
+            }
+
+            // Aynı üyelik tipi kontrolü
+            const currentMembership = "{{ user.membership_type }}";
+            if (membershipType.value === currentMembership) {
+                membershipTypeError.textContent = "Mevcut üyelik tipinizle aynı paketi seçemezsiniz.";
+                hasErrors = true;
+            }
+
+            // Süre kontrolü
+            if (!duration.value) {
+                durationError.textContent = "Üyelik süresi seçmek zorunludur.";
+                hasErrors = true;
+            }
+
+            // Eğer hata varsa form gönderimini durdur
+            if (hasErrors) {
+                event.preventDefault();
+            }
+        });
+    </script>
+
 
 {% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, UserProfile
+from .models import User, UserProfile, Secretary
 from datetime import timedelta
 from django.utils.timezone import now
 from django_otp.plugins.otp_static.models import StaticDevice
@@ -20,7 +20,7 @@ class UserAdmin(BaseUserAdmin):
     ordering = ['email']
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Kişisel Bilgiler', {'fields': ('first_name', 'last_name', 'date_of_birth', 'phone_number','email_notifications_enabled')}),
+        ('Kişisel Bilgiler', {'fields': ('first_name', 'last_name', 'date_of_birth', 'phone_number','email_notifications_enabled','email_sending_disabled')}),
         ('Üyelik Durumu', {'fields': (
         'membership_type', 'requested_membership_type', 'requested_duration', 'membership_expiry',
         'is_membership_approved')}),
@@ -84,3 +84,10 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ['user']
     search_fields = ['user__email', 'user__first_name', 'user__last_name']
     ordering = ['user__email']
+
+
+@admin.register(Secretary)
+class SecretaryAdmin(admin.ModelAdmin):
+    list_display = ('username', 'master_user')  # Görüntülenecek sütunlar
+    search_fields = ('username', 'master_user__username')  # Arama yapılabilir alanlar
+    list_filter = ('master_user',)  # Filtre alanları

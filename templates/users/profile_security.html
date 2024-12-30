@@ -82,6 +82,8 @@
                                     class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
                             <a class="nav-link" href="{% url 'profile_membership' %}"><i
                                     class="fas fa-credit-card me-2"></i>Üyelik Paketi Ayarları</a>
+                            <a class="nav-link " href="{% url 'profile_secretaries' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Sekreter Yönetimi</a>
                             <a class="nav-link" href="{% url 'profile_activity' %}"><i
                                     class="fas fa-chart-line me-2"></i>Yapılan İşlemler</a>
                         </div>
@@ -107,8 +109,9 @@
                                                     <p class="text-muted mb-0 small">Güvenliğiniz İçin Google Auth
                                                         Aktifleştirin</p>
                                                 {% else %}
-                                                   <a href="{% url 'two_factor:profile' %}"
-                                                       class="btn btn-sm btn-link" style="margin: 0; padding: 0">{% trans "2FA Ayarları" %}</a>
+                                                    <a href="{% url 'two_factor:profile' %}"
+                                                       class="btn btn-sm btn-link"
+                                                       style="margin: 0; padding: 0">{% trans "2FA Ayarları" %}</a>
                                                 {% endif %}
                                             </div>
                                             <div class="form-check form-switch">
@@ -125,16 +128,31 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-1">E-Posta Bildirimleri</h6>
-                                                <p class="text-muted mb-0 small">Ajanda Not ve Güncelleme Bildirimlerini
-                                                    Alın
-                                                </p>
+                                                <h6 class="mb-1">Otomatik E-Posta Bildirimleri</h6>
+
+
+                                                <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        id="emailSending"
+                                                        {% if not user.email_notifications_enabled %}disabled{% endif %}
+                                                        {% if user.email_sending_disabled %}checked
+                                                        {% endif %}
+                                                        onclick="location.href='{% url 'toggle_email_sending' %}'"
+                                                >
+                                                <label class="text-muted mb-0 small">&nbspYarın Not yoksa Not Yok
+                                                    E-postası
+                                                    gönderilsin.
+                                                </label>
+
                                             </div>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" id="emailNotifications"
                                                        {% if user.email_notifications_enabled %}checked{% endif %}
                                                        onclick="location.href='{% url 'toggle_email_notifications' %}'">
+
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load remove_query_param %}
 {% load static %}
 
 {% block header %}
@@ -31,11 +32,14 @@
                 <div class="col-lg-3 border-end">
                     <div class="p-4">
                         <div class="nav flex-column nav-pills">
-                             <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel Bilgiler</a>
+                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel
+                                Bilgiler</a>
                             <a class="nav-link " href="{% url 'profile_security' %}"><i
                                     class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
                             <a class="nav-link" href="{% url 'profile_membership' %}"><i
                                     class="fas fa-credit-card me-2"></i>Üyelik Paketi Ayarları</a>
+                            <a class="nav-link " href="{% url 'profile_secretaries' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Sekreter Yönetimi</a>
                             <a class="nav-link active" href="{% url 'profile_activity' %}"><i
                                     class="fas fa-chart-line me-2"></i>Yapılan İşlemler</a>
                         </div>
@@ -47,86 +51,78 @@
                     <div class="p-4">
                         <!-- Personal Information -->
                         <div class="mb-4">
-                            <h5 class="mb-4">Personal Information</h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <br>
-                                    <center><label class="form-label">Uyelik
-                                        Paketi: <strong>{{ user.get_membership_type_display }}</strong> </label><br>
-                                        {% if user.membership_expiry %}
-                                            <label class="form-label">Bitis Tarihi
-                                                : <strong>{{ user.membership_expiry|date:"d M Y" }}</strong></label>
+                            <h5 class="mb-4">Kullanıcı İşlem Geçmişi</h5>
+
+                            <p>*Varsayılan olarak Son 10 gün gösterilmektedir. Filtreleme yaparak aralığı değiştirebilirsiniz.</p>
+                            <form method="get" class="mb-4 row g-3">
+                                <div class="col-md-3">
+                                    {{ form.start_date.label_tag }}
+                                    {{ form.start_date }}
+                                </div>
+                                <div class="col-md-3">
+                                    {{ form.end_date.label_tag }}
+                                    {{ form.end_date }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.action.label_tag }}
+                                    {{ form.action }}
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+                                </div>
+                            </form>
+
+                            <!-- İşlem Geçmişi Tablosu -->
+                            {% if page_obj %}
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for activity in page_obj %}
+                                        <tr>
+                                            <td>{{ activity.timestamp|date:"d/m/Y H:i" }}</td>
+                                            <td>{{ activity.action }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+                                <!-- Sayfalama -->
+                                <nav>
+                                    <ul class="pagination justify-content-center">
+                                        {% if page_obj.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|remove_query_param:'page' }}">
+                                                    &laquo; Önceki
+                                                </a>
+                                            </li>
                                         {% endif %}
-                                    </center>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" disabled value={{ user.email }}>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">First Name</label>
-                                    <input type="text" class="form-control" disabled value={{ user.first_name }}>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" disabled value={{ user.last_name }}>
-                                </div>
 
+                                        {% for num in page_obj.paginator.page_range %}
+                                            <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                                                <a class="page-link"
+                                                   href="?page={{ num }}&{{ request.GET.urlencode|remove_query_param:'page' }}">{{ num }}</a>
+                                            </li>
+                                        {% endfor %}
 
-                            </div>
-                        </div>
-
-                        <!-- Settings Cards -->
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-6">
-                                <div class="settings-card card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-1">Two-Factor Authentication</h6>
-                                                <p class="text-muted mb-0 small">Add an extra layer of
-                                                    security</p>
-                                            </div>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="settings-card card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-1">Email Notifications</h6>
-                                                <p class="text-muted mb-0 small">Receive activity updates
-                                                </p>
-                                            </div>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Activity -->
-                        <div>
-                            <h5 class="mb-4">Recent Activity</h5>
-                            <div class="activity-item mb-3">
-                                <h6 class="mb-1">Updated profile picture</h6>
-                                <p class="text-muted small mb-0">2 hours ago</p>
-                            </div>
-                            <div class="activity-item mb-3">
-                                <h6 class="mb-1">Changed password</h6>
-                                <p class="text-muted small mb-0">Yesterday</p>
-                            </div>
-                            <div class="activity-item">
-                                <h6 class="mb-1">Updated billing information</h6>
-                                <p class="text-muted small mb-0">3 days ago</p>
-                            </div>
+                                        {% if page_obj.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|remove_query_param:'page' }}">
+                                                    Sonraki &raquo;
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            {% else %}
+                                <p>Herhangi bir işlem kaydı bulunmamaktadır.</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -134,8 +130,6 @@
         </div>
     </div>
     </div>
-
-
     </section>
 
 {% endblock %}
