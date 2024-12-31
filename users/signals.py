@@ -1,7 +1,9 @@
-from django.db.models.signals import post_save, post_delete, pre_save
+from django.db.models.signals import post_save, post_delete, pre_save, pre_delete
 from django.dispatch import receiver
-from .models import User, UserActivityLog
+from .models import User, UserActivityLog, Secretary
 from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.conf import settings
+from django.db import transaction
 
 
 @receiver(post_save, sender=User)
@@ -71,7 +73,6 @@ def log_two_factor_toggle(sender, instance, **kwargs):
         )
         UserActivityLog.objects.create(user=instance, action=action)
 
-
 @receiver(post_save, sender=User)
 def log_membership_extension_request(sender, instance, **kwargs):
     if instance.tracker.has_changed('requested_duration') and instance.requested_duration != None:
@@ -79,15 +80,12 @@ def log_membership_extension_request(sender, instance, **kwargs):
         action = f"Üyelik süresi uzatma talep edildi: {duration_display}."
         UserActivityLog.objects.create(user=instance, action=action)
 
-
-
 @receiver(post_save, sender=User)
 def log_membership_package_request(sender, instance, **kwargs):
     if instance.tracker.has_changed('requested_membership_type'):
         membership_display = instance.get_requested_membership_type_display()
         action = f"Üyelik paketi talep edildi: {membership_display}."
         UserActivityLog.objects.create(user=instance, action=action)
-
 
 @receiver(post_save, sender=User)
 def log_membership_package_approval(sender, instance, **kwargs):
@@ -100,3 +98,17 @@ def log_membership_package_approval(sender, instance, **kwargs):
             else "Üyelik paketi onaylandı."
         )
         UserActivityLog.objects.create(user=instance, action=action)
+
+@receiver(post_save, sender=Secretary)
+def log_secretary_save(sender, instance, created, **kwargs):
+    if created:
+        action = f"Sekreter eklendi: {instance.username}"
+    else:
+        action = f"Sekreter düzenlendi: {instance.username}"
+    UserActivityLog.objects.create(user=instance.master_user, action=action)
+
+@receiver(post_delete, sender=Secretary)
+def log_secretary_delete(sender, instance, **kwargs):
+    action = f"Sekreter silindi: {instance.username}"
+    UserActivityLog.objects.create(user=instance.master_user, action=action)
+

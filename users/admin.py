@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, UserProfile, Secretary
+from .models import User, UserProfile, Secretary, UserActivityLog
 from datetime import timedelta
 from django.utils.timezone import now
 from django_otp.plugins.otp_static.models import StaticDevice
@@ -13,7 +13,7 @@ class UserAdmin(BaseUserAdmin):
     """
     Kullanıcı yönetimi için özelleştirilmiş admin sınıfı.
     """
-    list_display = ['email', 'first_name', 'last_name', 'membership_type', 'requested_membership_type', 'requested_duration',
+    list_display = ['email', 'first_name', 'last_name', 'user_type', 'membership_type', 'requested_membership_type', 'requested_duration',
                     'membership_expiry', 'is_membership_approved', 'is_2fa_enabled_display', 'is_active']
     list_filter = ['membership_type', 'is_membership_approved', 'is_active']
     search_fields = ['email', 'first_name', 'last_name']
@@ -24,7 +24,7 @@ class UserAdmin(BaseUserAdmin):
         ('Üyelik Durumu', {'fields': (
         'membership_type', 'requested_membership_type', 'requested_duration', 'membership_expiry',
         'is_membership_approved')}),
-
+        ('Ek Alanlar', {'fields': ('user_type',)}),
         ('Yetkiler', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Önemli Tarihler', {'fields': ('last_login',)}),
     )
@@ -91,3 +91,9 @@ class SecretaryAdmin(admin.ModelAdmin):
     list_display = ('username', 'master_user')  # Görüntülenecek sütunlar
     search_fields = ('username', 'master_user__username')  # Arama yapılabilir alanlar
     list_filter = ('master_user',)  # Filtre alanları
+
+
+@admin.register(UserActivityLog)
+class ActionLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'action', 'timestamp')
+    list_filter = ('user', 'timestamp')

@@ -8,6 +8,12 @@ from django.contrib.auth.models import User
 from model_utils.models import StatusModel, TimeStampedModel
 from model_utils import FieldTracker
 from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.models import User as AuthUser
+from django.db.models.signals import post_save, post_delete, pre_delete
+from django.dispatch import receiver
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db import transaction
 
 
 class CustomUserManager(BaseUserManager):
@@ -38,7 +44,14 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     """
     Custom user model that uses email instead of username.
+
     """
+    USER_TYPES = [
+        ('master', 'Master Kullanıcı'),
+        ('secretary', 'Sekreter'),
+    ]
+    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='master')
+
     MEMBERSHIP_CHOICES = [
         ('standard', 'Başlangıç'),
         ('premium', 'Gümüş'),
@@ -159,9 +172,13 @@ class UserActivityLog(models.Model):
 
 
 class Secretary(models.Model):
-    master_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="secretaries")
-    username = models.CharField(max_length=255, unique=True)  # Sekreter kullanıcı adı
-    password = models.CharField(max_length=255)  # Şifre (şifrelenmiş tutulabilir)
+    master_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="secretaries"
+    )
+    username = models.CharField(max_length=255, unique=True)
+    password = models.CharField(max_length=255)  # Şifre (hashlenmiş saklanır)
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Yeni oluşturuluyorsa şifreyi hashle
@@ -170,6 +187,7 @@ class Secretary(models.Model):
 
     def check_password(self, raw_password):
         return check_password(raw_password, self.password)
+
 
     def __str__(self):
         return f"{self.username} (Üst Kullanıcı: {self.master_user.email})"

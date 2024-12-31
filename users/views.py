@@ -220,10 +220,6 @@ def profile_activity(request):
 def profile_secretaries(request):
     user = request.user  # Giriş yapan kullanıcı
 
-    # Şartları kontrol et
-    if user.membership_type != 'pro' or not user.is_2fa_enabled:
-        return redirect('profile')
-
     if request.method == 'POST':
         form = SecretaryForm(request.POST, master_user=user)
         if form.is_valid():
