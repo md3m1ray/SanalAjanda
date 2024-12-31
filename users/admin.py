@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, UserProfile, Secretary, UserActivityLog
+from .models import (User, UserProfile, Secretary, UserActivityLog)
 from datetime import timedelta
 from django.utils.timezone import now
 from django_otp.plugins.otp_static.models import StaticDevice

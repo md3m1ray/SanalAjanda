@@ -10,7 +10,7 @@ from users.utils import email_verification_token
 from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 )
-from .forms import LoginForm, RegistrationForm, UserProfileForm, ActivityFilterForm
+from .forms import (LoginForm, RegistrationForm, UserProfileForm, ActivityFilterForm)
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm , SetPasswordForm
@@ -21,7 +21,6 @@ from .forms import SecretaryForm
 from .models import Secretary
 
 
-# Kullanıcı Kayıt
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -40,18 +39,14 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'users/register.html', {'form': form})
 
-
-# Kullanıcı Giriş
 def login_view(request):
     return redirect('two_factor:login' )
 
-# Kullanıcı Çıkış
 def logout_view(request):
     logout(request)
     messages.success(request, "Başarıyla çıkış yaptınız.")
     return redirect('login')
 
-# E-posta Doğrulama
 def verify_email(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
@@ -68,7 +63,6 @@ def verify_email(request, uidb64, token):
         messages.error(request, "Doğrulama bağlantısı geçersiz veya süresi dolmuş.")
     return redirect('login')
 
-# Profil
 @login_required
 def profile(request):
     user = request.user
@@ -79,7 +73,6 @@ def profile(request):
         'membership_type': membership_type,
     })
 
-# User Profile Edit View
 @login_required
 def profile_edit(request):
     if request.method == 'POST':
@@ -93,7 +86,6 @@ def profile_edit(request):
     return render(request, 'users/profile_edit.html', {'form': form})
 
 
-# Password Reset Views
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'users/password_reset.html'
     email_template_name = 'users/password_reset_email.html'
@@ -238,7 +230,7 @@ def profile_secretaries(request):
 
 @login_required
 def delete_secretary(request, pk):
-    user = request.user  # Giriş yapan kullanıcı
+    user = request.user
     try:
         secretary = user.secretaries.get(pk=pk)  # Sadece kendi sekreterlerini silebilir
         secretary.delete()

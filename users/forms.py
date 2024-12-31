@@ -1,12 +1,14 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth.hashers import make_password
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from .models import User
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from .models import Secretary
 
 
-# Kullanıcı Kayıt Formu
 class RegistrationForm(UserCreationForm):
     first_name = forms.CharField(
         max_length=30,
@@ -150,7 +152,6 @@ class RegistrationForm(UserCreationForm):
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
 
-# Şifre Sıfırlama Formu
 class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
         max_length=254,
@@ -170,7 +171,6 @@ class CustomPasswordResetForm(PasswordResetForm):
         return email
 
 
-# Yeni Şifre Belirleme Formu
 class CustomSetPasswordForm(SetPasswordForm):
     new_password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
@@ -222,7 +222,6 @@ class PasswordChangeForm(forms.Form):
         return cleaned_data
 
 
-# Üyelik Yükseltme Formu
 class MembershipUpgradeForm(forms.ModelForm):
     class Meta:
         model = User
@@ -255,7 +254,7 @@ class MembershipUpgradeForm(forms.ModelForm):
             raise forms.ValidationError("Üyelik süresi seçmek zorunludur.")
         return requested_duration
 
-# Profil Güncelleme Formu
+
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
@@ -333,10 +332,26 @@ class SecretaryForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
+        # Kullanıcı adı ve şifreyi al
         username = self.cleaned_data.get('username')
+        full_username = f"{username}-{self.master_user.email}"  # Tam kullanıcı adı oluştur
+
+        # Yeni bir kullanıcı oluştur ve ilişkilendir
+        user, created = User.objects.get_or_create(
+            email=full_username,
+            defaults={
+                'password': make_password(self.cleaned_data.get('password')),
+                'is_active': True,
+                'user_type': 'secretary',
+            }
+        )
+
+        # Secretary modelini kullanıcıyla ilişkilendir
         instance = super().save(commit=False)
-        instance.username = f"{username}-{self.master_user.email}"  # Sekreter kullanıcı adı
+        instance.user = user
+        instance.username = full_username
         instance.master_user = self.master_user
+
         if commit:
             instance.save()
         return instance
