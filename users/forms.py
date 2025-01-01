@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPa
 from django.contrib.auth.hashers import make_password
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from .models import User
+from .models import User, UserActivityLog
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from .models import Secretary
@@ -286,12 +286,23 @@ class ActivityFilterForm(forms.Form):
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         label="Bitiş Tarihi"
     )
-    action = forms.CharField(
+    action = forms.ChoiceField(
         required=False,
-        max_length=255,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'İşlem türünü giriniz'}),
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-control'}),
         label="İşlem Türü"
     )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Kullanıcıyı al
+        super().__init__(*args, **kwargs)
+
+        if user:
+            # Kullanıcının işlemlerine göre dinamik seçimler oluştur
+            actions = UserActivityLog.objects.filter(user=user).order_by('action').values_list('action',
+                                                                                               flat=True).distinct()
+            self.fields['action'].choices = [('', 'Tüm İşlemler')] + [(action, action) for action in actions]
+
 
 
 class SecretaryForm(forms.ModelForm):

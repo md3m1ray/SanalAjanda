@@ -188,14 +188,14 @@ def profile_activity(request):
     activities = UserActivityLog.objects.filter(user=request.user, timestamp__gte=ten_days_ago)
 
     # Filtreleme
-    form = ActivityFilterForm(request.GET)
+    form = ActivityFilterForm(request.GET, user=request.user)  # Kullanıcıyı form'a geçir
     if form.is_valid():
         if form.cleaned_data['start_date']:
             activities = activities.filter(timestamp__gte=form.cleaned_data['start_date'])
         if form.cleaned_data['end_date']:
             activities = activities.filter(timestamp__lte=form.cleaned_data['end_date'])
         if form.cleaned_data['action']:
-            activities = activities.filter(action__icontains=form.cleaned_data['action'])
+            activities = activities.filter(action=form.cleaned_data['action'])
 
     # Sayfalama
     paginator = Paginator(activities.order_by('-timestamp'), 10)  # Her sayfada 10 kayıt
