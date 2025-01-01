@@ -51,14 +51,18 @@ def log_user_delete(sender, instance, **kwargs):
 @receiver(user_logged_in)
 def log_login(sender, request, user, **kwargs):
     if hasattr(user, 'secretary_profile'):
-        return
-    UserActivityLog.objects.create(user=user, action="Oturum açıldı.")
+        master_user = user.secretary_profile.master_user
+        UserActivityLog.objects.create(user=master_user, action=f"Sekreter {user.email} oturum açtı.")
+    else:
+        UserActivityLog.objects.create(user=user, action="Oturum açıldı.")
 
 @receiver(user_logged_out)
 def log_logout(sender, request, user, **kwargs):
     if hasattr(user, 'secretary_profile'):
-        return
-    UserActivityLog.objects.create(user=user, action="Oturum kapatıldı.")
+        master_user = user.secretary_profile.master_user
+        UserActivityLog.objects.create(user=master_user, action=f"Sekreter {user.email} oturum kapattı.")
+    else:
+        UserActivityLog.objects.create(user=user, action="Oturum kapatıldı.")
 
 @receiver(post_save, sender=User)
 def log_email_notification_toggle(sender, instance, **kwargs):
@@ -76,16 +80,24 @@ def log_email_notification_toggle(sender, instance, **kwargs):
 
 @receiver(post_save, sender=User)
 def log_two_factor_toggle(sender, instance, **kwargs):
-    if hasattr(instance, 'secretary_profile'):
-        return
     if instance.tracker.has_changed('is_2fa_enabled'):
-        current_state = instance.is_2fa_enabled
-        action = (
-            "2FA (İki Faktörlü Doğrulama) etkinleştirildi."
-            if current_state
-            else "2FA devre dışı bırakıldı."
-        )
-        UserActivityLog.objects.create(user=instance, action=action)
+        if hasattr(instance, 'secretary_profile'):
+            master_user = instance.secretary_profile.master_user
+            current_state = instance.is_2fa_enabled
+            action = (
+                f"Sekreter {instance.email} İki Faktörlü Doğrulama etkinleştirdi."
+                if current_state
+                else f"Sekreter {instance.email} 2FA devre dışı bıraktı."
+            )
+            UserActivityLog.objects.create(user=master_user, action=action)
+        else:
+            current_state = instance.is_2fa_enabled
+            action = (
+                "2FA (İki Faktörlü Doğrulama) etkinleştirildi."
+                if current_state
+                else "2FA devre dışı bırakıldı."
+            )
+            UserActivityLog.objects.create(user=instance, action=action)
 
 @receiver(post_save, sender=User)
 def log_membership_extension_request(sender, instance, **kwargs):
