@@ -335,16 +335,22 @@ class SecretaryForm(forms.ModelForm):
         # Kullanıcı adı ve şifreyi al
         username = self.cleaned_data.get('username')
         full_username = f"{username}-{self.master_user.email}"  # Tam kullanıcı adı oluştur
+        password = self.cleaned_data.get('password')
 
-        # Yeni bir kullanıcı oluştur ve ilişkilendir
-        user, created = User.objects.get_or_create(
-            email=full_username,
-            defaults={
-                'password': make_password(self.cleaned_data.get('password')),
-                'is_active': True,
-                'user_type': 'secretary',
-            }
-        )
+        # Varolan kullanıcıyı al veya yeni oluştur
+        if self.instance.pk and self.instance.user:
+            user = self.instance.user  # Mevcut kullanıcıyı al
+            user.email = full_username
+            if password:  # Şifre değiştiyse
+                user.password = make_password(password)
+            user.save()
+        else:
+            # Yeni kullanıcı oluştur
+            user = User.objects.create(
+                email=full_username,
+                password=make_password(password),
+                is_active=True,
+            )
 
         # Secretary modelini kullanıcıyla ilişkilendir
         instance = super().save(commit=False)
