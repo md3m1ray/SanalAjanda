@@ -1,13 +1,14 @@
 from django.urls import path
 from users import views
 from .views import (toggle_email_notifications, change_password, disable_two_factor,
-                    toggle_email_sending, profile_secretaries, delete_secretary, edit_secretary)
+                    toggle_email_sending, profile_secretaries, delete_secretary, edit_secretary,DeleteUserView)
 
 urlpatterns = [
     # Kullanıcı işlemleri
     path('register/', views.register, name='register'),  # Kayıt sayfası
     path('login/', views.login_view, name='login'),
     path('disable-two-factor/', disable_two_factor, name='disable_two_factor'),
+    path('delete-account/', DeleteUserView.as_view(), name='delete_account'),
     path('logout/', views.logout_view, name='logout'),  # Çıkış yap
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/security/', views.profile_security, name='profile_security'),

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block header %}
+
+    <title>{{ index_site_title }}</title>
+    <style>
+        .progress-bar {
+            height: 10px;
+        }
+
+        .progress-bar.weak {
+            background-color: red;
+        }
+
+        .progress-bar.medium {
+            background-color: orange;
+        }
+
+        .progress-bar.strong {
+            background-color: green;
+        }
+
+        .password-requirement.valid {
+            color: green;
+        }
+
+        .password-requirement.invalid {
+            color: red;
+        }
+
+        #password-strength-bar.bg-danger {
+            background-color: #dc3545;
+        }
+
+        #password-strength-bar.bg-warning {
+            background-color: #ffc107;
+        }
+
+        #password-strength-bar.bg-success {
+            background-color: #28a745;
+        }
+
+        input::placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
+
+        input:focus::placeholder {
+            opacity: 0.7;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+    <section id="profile" class="section" style="padding-top: 100px; scroll-margin-top: 98px;
+    overflow: clip">
+
+    <div class="container section-title" data-aos="fade-up">
+        <h2>Profil - Güvenlik ve Bildirim Ayarları</h2>
+
+    </div>
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+{% endblock %}
+{% block d_content %}
+    {% csrf_token %}
+
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <!-- Sidebar -->
+                <div class="col-lg-3 border-end">
+                    <div class="p-4">
+                        <div class="nav flex-column nav-pills">
+                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel
+                                Bilgiler</a>
+                            <a class="nav-link active" href="{% url 'profile_security' %}"><i
+                                    class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
+                            <a class="nav-link" href="{% url 'profile_membership' %}"><i
+                                    class="fas fa-credit-card me-2"></i>Üyelik Paketi Ayarları</a>
+                            <a class="nav-link " href="{% url 'profile_secretaries' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Sekreter Yönetimi</a>
+                            <a class="nav-link" href="{% url 'profile_activity' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Yapılan İşlemler</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-9">
+                    <div class="p-4">
+
+                        <div class="mb-4">
+                            <h5 class="mb-4">Güvenlik ve Bildirim Ayarları</h5>
+
+                        </div>
+
+                        <h3>Hesabınızı Silin</h3>
+                        {% if user.is_2fa_enabled %}
+                        <p class="text-danger">Bu işlem geri alınamaz. Tüm verileriniz ve bağlı sekreterleriniz de
+                            silinecektir.</p>
+
+                            <form method="post" action="{% url 'delete_account' %}"
+                                  onsubmit="return confirmDeletion(event);">
+                                {% csrf_token %}
+                                <div class="form-group mb-3">
+                                    <label for="password">Şifre</label>
+                                    <input
+                                            type="password"
+                                            name="password"
+                                            id="password"
+                                            class="form-control"
+                                            placeholder="Hesabınızı silmek için şifrenizi girin"
+                                            required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="google_auth_code">Google Authenticator Kodu</label>
+                                    <input
+                                            type="text"
+                                            name="google_auth_code"
+                                            maxlength="6"
+                                            minlength="6"
+                                            autofocus="autofocus"
+                                            pattern="[0-9]*"
+                                            id="google_auth_code"
+                                            class="form-control"
+                                            placeholder="Google Authenticator Kodunuzu Girin"
+                                            required>
+                                </div>
+                                <button type="submit" class="btn btn-danger">Hesabımı Kalıcı Olarak Sil</button>
+                                <a href="{% url 'profile_security' %}" class="btn btn-secondary">İptal</a>
+                            </form>
+                            {% else %}
+                            <p class="text-danger">Bu işlem için iki faktörlü doğrulamanın aktif olması gerekir.</p>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+    </section>
+
+{% endblock %}
+{% block extra_scripts %}
+    <script>
+        function confirmDeletion(event) {
+            return confirm("Bu işlemi gerçekleştirmek istediğinizden emin misiniz? Bu işlem geri alınamaz.");
+        }
+    </script>
+{% endblock %}

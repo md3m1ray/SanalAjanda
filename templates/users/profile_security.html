@@ -140,9 +140,9 @@
                                                         {% endif %}
                                                         onclick="location.href='{% url 'toggle_email_sending' %}'"
                                                 >
-                                                <label class="text-muted mb-0 small">&nbspYarın Not yoksa Not Yok
+                                                <label class="text-muted mb-0 small">&nbspYarın için not yoksa Not Yok
                                                     E-postası
-                                                    gönderilsin.
+                                                    gönderilsin mi?
                                                 </label>
 
                                             </div>
@@ -160,9 +160,11 @@
                         </div>
                         <div class="container mt-4">
                             <div class="card border-0 shadow-sm">
+                                <button id="toggle-password-form" class="btn btn-primary">Şifreyi Değiştir</button>
                                 <div class="card-body">
-                                    <h5 class="mb-4">Şifreyi Değiştir</h5>
-                                    <form method="POST" id="password-change-form">
+
+                                    <form method="POST" id="password-change-form"
+                                          style="display: none; margin-top: 20px;">
                                         {% csrf_token %}
                                         <div class="form-group mb-3">
 
@@ -228,11 +230,50 @@
                                             </div>
                                         </div>
 
-                                        <button type="submit" class="btn btn-primary">Şifreyi Güncelle</button>
+                                        <button type="submit" class="btn btn-success">Şifreyi Güncelle</button>
+
                                     </form>
 
-
                                 </div>
+
+                                <!-- Silme Düğmesi -->
+                                <button
+                                        type="button"
+                                        id="account_delete_btn"
+                                        class="btn btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmationModal">
+                                    Hesabı Kalıcı Olarak
+                                    Sil
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteConfirmationModal" tabindex="-1"
+                                     aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteConfirmationModalLabel">Hesabı Kalıcı
+                                                    Olarak
+                                                    Sil</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Kapat"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bu işlemi gerçekleştirmek istediğinizden emin misiniz? Bu işlem geri
+                                                alınamaz.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    İptal
+                                                </button>
+                                                <a href="{% url 'delete_account' %}" class="btn btn-danger">Evet,
+                                                    Sil</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
 
@@ -249,6 +290,29 @@
 
 {% endblock %}
 {% block extra_scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButton = document.getElementById("toggle-password-form");
+            const passwordForm = document.getElementById("password-change-form");
+            const toggleButton2 = document.getElementById("account_delete_btn");
+
+            toggleButton.addEventListener("click", function () {
+                if (passwordForm.style.display === "none" || passwordForm.style.display === "") {
+                    passwordForm.style.display = "inline-block";
+                    toggleButton.classList.remove("btn-primary");
+                    toggleButton2.hidden = true;
+                    toggleButton.classList.add("btn-danger");
+                    toggleButton.textContent = "İptal";
+                } else {
+                    passwordForm.style.display = "none";
+                    toggleButton.classList.remove("btn-danger");
+                    toggleButton2.hidden = false;
+                    toggleButton.classList.add("btn-primary");
+                    toggleButton.textContent = "Şifreyi Değiştir";
+                }
+            });
+        });
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const passwordField = document.getElementById("id_new_password1");

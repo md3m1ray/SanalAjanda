@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
@@ -20,6 +21,14 @@ from django.utils.timezone import now, timedelta, make_aware, datetime
 from .forms import SecretaryForm
 from .models import Secretary
 from datetime import datetime, timedelta, time
+from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.contrib.auth import get_user_model
+from two_factor.utils import default_device
+from django.db import connection
+from django.contrib.auth.hashers import check_password
+
 
 
 def register(request):
@@ -155,7 +164,7 @@ def toggle_email_sending(request):
     user = request.user
     user.email_sending_disabled = not user.email_sending_disabled
     user.save()
-    messages.success(request, "E-posta gönderim ayarları güncellendi.")
+    messages.success(request, "Not Yok E-Postası için gönderim ayarları güncellendi.")
     return redirect('profile_security')
 
 @login_required
@@ -272,3 +281,61 @@ def edit_secretary(request, pk):
         form = SecretaryForm(instance=secretary, master_user=user)
 
     return render(request, 'users/profile_edit_secretary.html', {'form': form, 'secretary': secretary})
+
+
+User = get_user_model()
+
+class DeleteUserView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'users/delete_account.html')
+
+    @method_decorator(login_required)
+    def post(self, request):
+        user = request.user
+        password = request.POST.get("password")
+        google_auth_code = request.POST.get("google_auth_code")
+        device = default_device(user)
+
+        if not device:
+            messages.error(request, "2FA etkinleştirilmeden bu işlemi gerçekleştiremezsiniz.")
+            return redirect('profile_security')  # Kullanıcıyı 2FA ayarlarına yönlendirebilirsiniz
+
+        if request.method == "POST":
+
+            if not device.verify_token(google_auth_code):
+                messages.error(request, "Google Authenticator kodu yanlış!")
+                return redirect('delete_account')
+
+            if not check_password(password, user.password):
+                messages.error(request, "Şifreniz doğru değil!")
+                return redirect('delete_account')
+
+            try:
+                # Veritabanı işlemlerini bir bütün olarak yürüt
+                with connection.cursor() as cursor:
+                    # FOREIGN KEY kısıtlamalarını devre dışı bırak
+                    cursor.execute("PRAGMA foreign_keys=OFF;")
+
+                    # Kullanıcı ve ilişkili kayıtları sil
+                    cursor.execute("DELETE FROM activity_logs WHERE user_id = %s", [user.id])
+
+                    secretaries = Secretary.objects.filter(master_user=user)
+                    for secretary in secretaries:
+                        # Kullanıcı adıyla eşleşen bir User kaydı varsa sil
+                        try:
+                            secretary_user = User.objects.get(email=secretary.username, user_type="secretary")
+                            secretary_user.delete()
+                        except User.DoesNotExist:
+                            pass
+                    cursor.execute("DELETE FROM secretaries WHERE master_user_id = %s", [user.id])
+                    user.delete()
+                    # FOREIGN KEY kısıtlamalarını tekrar etkinleştir
+                    cursor.execute("PRAGMA foreign_keys=ON;")
+
+                messages.success(request, "Hesabınız ve tüm verileriniz kalıcı olarak silindi.")
+                return redirect('login')
+
+            except Exception as e:
+                messages.error(request, f"Hesabınızı silerken bir hata oluştu: {str(e)}")
+                return redirect('delete_account')

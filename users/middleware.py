@@ -7,7 +7,7 @@ class RestrictSecretaryMiddleware:
     def __call__(self, request):
         if request.user.is_authenticated and request.user.user_type == 'secretary':
             # Sadece sekreterlerin erişimini kısıtla
-            allowed_paths = ['/', '/login/', '/logout/', '/secretary/']
+            allowed_paths = ['/profile/', '/login/', '/logout/', '/']
             if request.path not in allowed_paths:
                 return redirect('index')
         return self.get_response(request)

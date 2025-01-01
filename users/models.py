@@ -167,6 +167,9 @@ class UserActivityLog(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.action} - {self.timestamp}"
 
+    class Meta:
+        db_table = "activity_logs"
+
 
 class Secretary(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='secretary_profile')
@@ -188,3 +191,6 @@ class Secretary(models.Model):
 
     def __str__(self):
         return f"{self.username} (Üst Kullanıcı: {self.master_user.email})"
+
+    class Meta:
+        db_table = "secretaries"

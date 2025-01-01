@@ -28,6 +28,7 @@ urlpatterns = [
     path('', include('core.urls')),
     path('', include('users.urls')),
     path('', include(('two_factor.urls', 'two_factor'), namespace='two_factor')),
+    path('', include('payment.urls')),
 
 ]
 

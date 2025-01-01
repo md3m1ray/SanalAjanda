@@ -151,7 +151,14 @@
                 </div>
                 <!-- Şartlar ve Koşullar -->
                 <div class="form-group form-button">
-                    {{ form.terms_accepted }}
+                    <input
+                            type="checkbox"
+                            id="agree-term"
+                            disabled="true"
+                            name="terms_accepted"
+                            class="form-check-input"
+                            {% if form.terms_accepted.value %}checked{% endif %}
+                    >
                     <label for="{{ form.terms_accepted.id_for_label }}" class="form-label">
                         <a href="#" id="view-terms" class="term-service">Hizmet Koşullarını</a> Okudum ve Kabul
                         Ediyorum.
@@ -205,20 +212,21 @@
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const registerForm = document.getElementById("register-form");
+            const agreeTermCheckbox = document.getElementById("agree-term");
+            const alertMessage = document.getElementById("alert-message");
             const termsModal = document.getElementById("terms-modal");
             const viewTermsLink = document.getElementById("view-terms");
             const closeModal = document.querySelector(".close");
             const acceptTermsButton = document.getElementById("accept-terms");
-            const agreeTermCheckbox = document.getElementById("agree-term");
-            const alertMessage = document.getElementById("alert-message");
 
-            // "Terms of service" linkine tıklayınca modal açılır
+            // Modal açılır
             viewTermsLink.addEventListener("click", function (e) {
                 e.preventDefault();
                 termsModal.style.display = "block";
             });
 
-            // Modal kapatma
+            // Modal kapatılır
             closeModal.addEventListener("click", function () {
                 termsModal.style.display = "none";
             });
@@ -230,14 +238,27 @@
                 }
             });
 
-            // Şartları kabul etme
-            acceptTermsButton.addEventListener("click", function () {
+            // "Kabul Ediyorum" butonuna tıklayınca checkbox işaretlenir ve modal kapanır
+            acceptTermsButton.addEventListener("click", function (e) {
+                e.preventDefault();
                 termsModal.style.display = "none";
-                agreeTermCheckbox.disabled = false; // Checkbox aktif hale gelir
+                agreeTermCheckbox.disabled = false;
                 agreeTermCheckbox.checked = true; // Checkbox işaretlenir
                 alertMessage.style.display = "none"; // Uyarı mesajı gizlenir
             });
+
+            // Form gönderme olayını dinle
+            registerForm.addEventListener("submit", function (event) {
+                // Eğer checkbox işaretlenmediyse
+                if (!agreeTermCheckbox.checked) {
+                    event.preventDefault(); // Formun gönderilmesini engelle
+                    alertMessage.style.display = "block"; // Uyarı mesajını göster
+                } else {
+                    alertMessage.style.display = "none"; // Uyarı mesajını gizle
+                }
+            });
         });
+
     </script>
 
 

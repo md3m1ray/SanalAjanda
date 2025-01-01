@@ -77,7 +77,6 @@ class RegistrationForm(UserCreationForm):
     )
     terms_accepted = forms.BooleanField(
         required=True,
-        disabled=True,
         widget=forms.CheckboxInput(attrs={
             'class': 'form-check-input',
             'id': 'agree-term',
@@ -101,6 +100,12 @@ class RegistrationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'password1', 'password2', 'membership_type', 'requested_duration']
+
+    def clean_terms_accepted(self):
+        terms_accepted = self.cleaned_data.get('terms_accepted')
+        if not terms_accepted:
+            raise forms.ValidationError("Devam etmek için şartları okuyup kabul etmelisiniz.")
+        return terms_accepted
 
 
 
@@ -304,7 +309,6 @@ class ActivityFilterForm(forms.Form):
             self.fields['action'].choices = [('', 'Tüm İşlemler')] + [(action, action) for action in actions]
 
 
-
 class SecretaryForm(forms.ModelForm):
     class Meta:
         model = Secretary
@@ -361,6 +365,7 @@ class SecretaryForm(forms.ModelForm):
                 email=full_username,
                 password=make_password(password),
                 is_active=True,
+                user_type='secretary'
             )
 
         # Secretary modelini kullanıcıyla ilişkilendir
