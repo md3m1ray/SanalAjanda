@@ -16,9 +16,10 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm , SetPasswordForm
 from django.contrib.auth.decorators import login_required
 from .models import UserActivityLog
-from django.utils.timezone import now, timedelta
+from django.utils.timezone import now, timedelta, make_aware, datetime
 from .forms import SecretaryForm
 from .models import Secretary
+from datetime import datetime, timedelta, time
 
 
 def register(request):
@@ -190,12 +191,25 @@ def profile_activity(request):
     # Filtreleme
     form = ActivityFilterForm(request.GET, user=request.user)  # Kullanıcıyı form'a geçir
     if form.is_valid():
-        if form.cleaned_data['start_date']:
-            activities = activities.filter(timestamp__gte=form.cleaned_data['start_date'])
-        if form.cleaned_data['end_date']:
-            activities = activities.filter(timestamp__lte=form.cleaned_data['end_date'])
+        start_date = form.cleaned_data.get('start_date')
+        end_date = form.cleaned_data.get('end_date')
+
+        if start_date:
+            # Başlangıç tarihini dahil et
+            activities = activities.filter(timestamp__date__gte=start_date)
+
+        if end_date:
+            # Bitiş tarihine saat 23:59:59 ekleyerek tüm günü dahil et
+            end_datetime = make_aware(datetime.combine(end_date, time.max))
+            activities = activities.filter(timestamp__lte=end_datetime)
+
         if form.cleaned_data['action']:
             activities = activities.filter(action=form.cleaned_data['action'])
+
+        if form.cleaned_data['start_date'] and not form.cleaned_data['end_date']:
+            activities = activities.filter(timestamp__date__gte=form.cleaned_data['start_date'])
+        if form.cleaned_data['end_date'] and not form.cleaned_data['start_date']:
+            activities = activities.filter(timestamp__date__lte=form.cleaned_data['end_date'])
 
     # Sayfalama
     paginator = Paginator(activities.order_by('-timestamp'), 10)  # Her sayfada 10 kayıt
