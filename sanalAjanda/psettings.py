@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'django_recaptcha',
     'payment.apps.PaymentConfig',
+    'django_cryptography'
 ]
 
 MIDDLEWARE = [

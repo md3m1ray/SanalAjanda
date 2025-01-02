@@ -23,7 +23,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('django.contrib.auth.urls')),
-    path('ajanda/', include('Ajanda.urls')),
+    path('', include('Ajanda.urls')),
     path('', include('contact.urls')),
     path('', include('core.urls')),
     path('', include('users.urls')),

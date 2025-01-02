@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'django_recaptcha',
     'payment.apps.PaymentConfig',
+    'django_cryptography'
 
 ]
 
@@ -53,7 +54,6 @@ LOGIN_REDIRECT_URL = 'profile'
 LOGOUT_REDIRECT_URL = 'index'
 TWO_FACTOR_LOGIN_VIEW = 'two_factor:login'
 TWO_FACTOR_QR_FACTORY = 'qrcode.image.svg.SvgImage'
-
 
 ROOT_URLCONF = 'sanalAjanda.urls'
 
