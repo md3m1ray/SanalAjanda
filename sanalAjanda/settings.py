@@ -1,6 +1,7 @@
 from pathlib import Path
 import environ
 from django.db.backends import sqlite3
+from cryptography.fernet import Fernet
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,8 +29,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'django_recaptcha',
     'payment.apps.PaymentConfig',
-    'django_cryptography'
-
+    'cryptography'
 ]
 
 MIDDLEWARE = [
@@ -135,3 +135,7 @@ RECAPTCHA_PRIVATE_KEY = env('RECAPTCHA_PRIVATE_KEY')
 RECAPTCHA_REQUIRED_SCORE = 0.85  # reCAPTCHA v3 için doğruluk puanı
 
 AUTH_USER_MODEL = 'users.User'
+
+ENCRYPTION_KEY = env('ENCRYPTION_KEY').encode()
+
+

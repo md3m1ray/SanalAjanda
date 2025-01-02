@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}
+
+    <title>{{ index_site_title }} - Ajanda</title>
+    <style>
+        .form-container {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container p {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 10px 20px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background: #218838;
+        }
+
+        .form-container a {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .form-container a:hover {
+            text-decoration: underline;
+        }
+
+        input::placeholder {
+            color: #6c757d;
+            opacity: 1;
+            text-align: center;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+    <section id="password-reset" class="section" style="padding-top: 100px; scroll-margin-top: 98px;
+    overflow: clip">
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+{% endblock %}
+{% block d_content %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <!-- Sidebar -->
+                <div class="col-lg-3 border-end">
+                    <div class="p-4">
+                        <div class="nav flex-column nav-pills">
+                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel
+                                Bilgiler</a>
+                            <a class="nav-link active" href="{% url 'profile_security' %}"><i
+                                    class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
+                            <a class="nav-link" href="{% url 'profile_membership' %}"><i
+                                    class="fas fa-credit-card me-2"></i>Üyelik Paketi Ayarları</a>
+                            <a class="nav-link " href="{% url 'profile_secretaries' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Sekreter Yönetimi</a>
+                            <a class="nav-link" href="{% url 'profile_activity' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Yapılan İşlemler</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-9">
+                    <div class="p-4">
+                        <div class="mb-4">
+
+                            <div class="row g-3">
+
+                                <div class="form-container mt-4">
+                                    <h2>Yeni Not Ekle</h2>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        {{ form.as_p }}
+                                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                                        <a href="{% url 'list_notes' %}" class="btn btn-secondary">Geri</a>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </section>
+{% endblock %}

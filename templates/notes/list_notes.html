@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}
+
+    <title>{{ index_site_title }} - Şifre Sıfırlama</title>
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container p {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 10px 20px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background: #218838;
+        }
+
+        .form-container a {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .form-container a:hover {
+            text-decoration: underline;
+        }
+
+        input::placeholder {
+            color: #6c757d;
+            opacity: 1;
+            text-align: center;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+    <section id="password-reset" class="section" style="padding-top: 100px; scroll-margin-top: 98px;
+    overflow: clip">
+
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>Şifre Sıfırlama</h2>
+
+    </div><!-- End Section Title -->
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Ajanda</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'calendar_view' %}">Ajanda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'list_notes' %}">Notlar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'filter_notes' %}">Notlar</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+{% endblock %}
+{% block d_content %}
+    <div class="form-container  mt-5">
+        <h2>Notlarım</h2>
+        <a href="{% url 'add_note' %}" class="btn btn-success mb-3">Yeni Not Ekle</a>
+
+        {% if notes %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Başlık</th>
+                    <th>Tarih</th>
+                    <th>Saat</th>
+                    <th>İşlemler</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for note in notes %}
+                    <tr>
+                        <td>{{ note.title }}</td>
+                        <td>{{ note.date }}</td>
+                        <td>{{ note.time|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'edit_note' note.id %}" class="btn btn-warning btn-sm">Düzenle</a>
+                            <a href="{% url 'delete_note' note.id %}" class="btn btn-danger btn-sm">Sil</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Henüz bir not eklemediniz.</p>
+        {% endif %}
+
+    </div>
+
+    </div>
+    </section>
+{% endblock %}

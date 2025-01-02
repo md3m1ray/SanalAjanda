@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}
+
+    <title>{{ index_site_title }} - Ajanda</title>
+    <style>
+        .form-container {
+
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container p {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 10px 20px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background: #218838;
+        }
+
+        .form-container a {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .form-container a:hover {
+            text-decoration: underline;
+        }
+
+        input::placeholder {
+            color: #6c757d;
+            opacity: 1;
+            text-align: center;
+        }
+
+        #calendar {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            #calendar {
+                max-width: 100%;
+                margin: 0 auto;
+                padding: 0;
+            }
+
+            .fc-toolbar {
+                flex-wrap: wrap;
+                text-align: center;
+            }
+        }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales/tr.js"></script>
+
+{% endblock %}
+
+{% block content %}
+    <section id="password-reset" class="section" style="padding-top: 100px; scroll-margin-top: 98px;
+    overflow: clip">
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+{% endblock %}
+{% block d_content %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <!-- Sidebar -->
+                <div class="col-lg-3 border-end">
+                    <div class="p-4">
+                        <div class="nav flex-column nav-pills">
+                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel
+                                Bilgiler</a>
+                            <a class="nav-link active" href="{% url 'profile_security' %}"><i
+                                    class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
+                            <a class="nav-link" href="{% url 'profile_membership' %}"><i
+                                    class="fas fa-credit-card me-2"></i>Üyelik Paketi Ayarları</a>
+                            <a class="nav-link " href="{% url 'profile_secretaries' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Sekreter Yönetimi</a>
+                            <a class="nav-link" href="{% url 'profile_activity' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Yapılan İşlemler</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-9">
+                    <div class="p-4">
+                        <div class="mb-4">
+
+                            <div class="row g-3">
+
+                                <div class="form-container mt-4">
+
+                                    <div id="calendar"></div>
+
+                                </div>
+                                <div class="modal fade" id="calendarModal" tabindex="-1"
+                                     aria-labelledby="calendarModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="calendarModalLabel">Notlar</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p id="modalContent"></p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    Kapat
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    </section>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth', // Varsayılan görünüm
+                headerToolbar: {
+                    left: 'title',
+                    center: 'prev,next,today',
+                    right: 'dayGridMonth,customWeekView,dayGridDay' // Görünüm seçenekleri
+                },
+                views: {
+                    dayGridMonth: {title: 'Aylık Görünüm'},
+                    customWeekView: {
+                        type: 'dayGrid', // Gün bazlı görünüm
+                        duration: {days: 7}, // Haftalık
+                        title: 'Özelleştirilmiş Haftalık Görünüm'
+                    },
+                    dayGridDay: { // Özelleştirilmiş Günlük Görünüm
+                        type: 'dayGrid',
+                        duration: {days: 1},
+                        title: 'Günlük Görünüm'
+                    },
+                },
+                buttonText: { // Buton yazıları
+                    today: 'Bugün',
+                    month: 'Ay',
+                    customWeekView: 'Hafta',
+                    week: 'Hafta',
+                    day: 'Gün',
+                    list: 'Liste'
+                },
+
+                locale: 'tr',
+                events: '/api/calendar-events/',
+                allDaySlot: false,
+                slotDuration: '24:00:00',
+                dateClick: function (info) {
+            const clickedDate = info.dateStr;
+
+            // AJAX ile verileri çek
+            fetch(`/get-notes/?date=${clickedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const notes = data.notes.map(note => `<li>${note.title}: ${note.content}</li>`).join('');
+                        document.getElementById('modalContent').innerHTML = notes || 'Bu güne ait not bulunamadı.';
+                    } else {
+                        document.getElementById('modalContent').innerHTML = 'Notları alırken bir hata oluştu.';
+                    }
+
+                    // Modal başlığı ve içeriği güncelle
+                    document.getElementById('calendarModalLabel').innerText = `Tarih: ${clickedDate}`;
+                    const modal = new bootstrap.Modal(document.getElementById('calendarModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    document.getElementById('modalContent').innerHTML = 'Veriler alınamadı.';
+                });
+        }
+            });
+
+            calendar.render();
+        });
+    </script>
+{% endblock %}

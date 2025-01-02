@@ -1,5 +1,6 @@
 from pathlib import Path
 import environ
+from cryptography.fernet import Fernet
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,7 +28,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'django_recaptcha',
     'payment.apps.PaymentConfig',
-    'django_cryptography'
+
 ]
 
 MIDDLEWARE = [
@@ -137,3 +138,5 @@ CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000  # 1 yıl
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
+
+ENCRYPTION_KEY = env('ENCRYPTION_KEY').encode()
