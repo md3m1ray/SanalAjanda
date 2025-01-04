@@ -17,14 +17,15 @@
                 <li><a href="{% url 'contact' %}">Contact</a></li>
 
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'calendar_view' %}">Ajanda</a></li>
-                    <li><a href="{% url 'list_notes' %}">Notlar</a></li>
-                    <li class="nav-item"><a href="{% url 'profile' %}">Profil</a></li>
-                    <li><a href="{% url 'logout' %}">Cikis</a></li>
+                    <li class="nav-item"><a href="{% url 'logout' %}">Cikis</a></li>
                 {% endif %}
             </ul>
             <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
+        {% if user.is_authenticated %}
+           <a class="btn-getlogin flex-md-shrink-0" href="{% url 'note_dashboard' %}">Ajanda</a>
+            <a class="btn-getstarted flex-md-shrink-0" href="{% url 'profile' %}">Profil</a>
+        {% endif %}
         {% if not user.is_authenticated %}
             <a class="btn-getlogin flex-md-shrink-0" href="{% url 'login' %}">Giris</a>
             <a class="btn-getstarted flex-md-shrink-0" href="{% url 'register' %}">Kayit Ol</a>

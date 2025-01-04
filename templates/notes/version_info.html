@@ -96,11 +96,11 @@
                 <div class="col-lg-3 border-end">
                     <div class="p-4">
                         <div class="nav flex-column nav-pills">
-                            <a class="nav-link" href="{% url 'note_dashboard' %}"><i class="fas fa-user me-2"></i>Ana
+                            <a class="nav-link active" href="{% url 'note_dashboard' %}"><i class="fas fa-user me-2"></i>Ana
                                 Menü</a>
                             <a class="nav-link" href="{% url 'calendar_view' %}"><i
                                     class="fas fa-lock me-2"></i>Takvim / Etkinlik</a>
-                            <a class="nav-link active" href="{% url 'list_notes' %}"><i
+                            <a class="nav-link" href="{% url 'list_notes' %}"><i
                                     class="fas fa-credit-card me-2"></i>Takvim / Not</a>
                             <a class="nav-link " href="{% url 'filter_notes' %}"><i
                                     class="fas fa-chart-line me-2"></i>Not Ara</a>
@@ -118,43 +118,16 @@
 
                             <div class="row g-3">
                                 <div class="form-container  mt-2">
-                                    <h2>Notlarım</h2>
-                                    <a href="{% url 'add_note' %}" class="btn btn-success mb-3">Yeni Not Ekle</a>
+                                    <h2>Sürüm Notları</h2>
 
-                                    {% if notes %}
-                                        <table class="table">
-                                            <thead>
-                                            <tr>
-                                                <th>Başlık</th>
-                                                <th>Tarih</th>
-                                                <th>Saat</th>
-                                                <th>İşlemler</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for note in notes %}
-                                                <tr>
-                                                    <td>{{ note.title }}</td>
-                                                    <td>{{ note.date }}</td>
-                                                    <td>{{ note.time|default:"-" }}</td>
-                                                    <td>
-                                                        <a href="{% url 'edit_note' note.id %}"
-                                                           class="btn btn-sm btn-warning">Düzenle</a>
-                                                        <a href="{% url 'delete_note' note.id %}"
-                                                           class="btn btn-sm btn-danger">Sil</a>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    {% else %}
-                                        <p>Henüz bir not eklemediniz.</p>
-                                    {% endif %}
+
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
+
             </div>
         </div>
     </div>

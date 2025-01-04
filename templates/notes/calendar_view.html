@@ -99,16 +99,18 @@
                 <div class="col-lg-3 border-end">
                     <div class="p-4">
                         <div class="nav flex-column nav-pills">
-                            <a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Kişisel
-                                Bilgiler</a>
-                            <a class="nav-link active" href="{% url 'profile_security' %}"><i
-                                    class="fas fa-lock me-2"></i>Güvenlik ve Bildirim Ayarları</a>
-                            <a class="nav-link" href="{% url 'profile_membership' %}"><i
-                                    class="fas fa-credit-card me-2"></i>Üyelik Paketi Ayarları</a>
-                            <a class="nav-link " href="{% url 'profile_secretaries' %}"><i
-                                    class="fas fa-chart-line me-2"></i>Sekreter Yönetimi</a>
-                            <a class="nav-link" href="{% url 'profile_activity' %}"><i
-                                    class="fas fa-chart-line me-2"></i>Yapılan İşlemler</a>
+                            <a class="nav-link" href="{% url 'note_dashboard' %}"><i class="fas fa-user me-2"></i>Ana
+                                Menü</a>
+                            <a class="nav-link active" href="{% url 'calendar_view' %}"><i
+                                    class="fas fa-lock me-2"></i>Takvim / Etkinlik</a>
+                            <a class="nav-link" href="{% url 'list_notes' %}"><i
+                                    class="fas fa-credit-card me-2"></i>Takvim / Not</a>
+                            <a class="nav-link " href="{% url 'filter_notes' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Not Ara</a>
+                            <a class="nav-link" href="{% url 'how_to_use' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Nasıl Kullanırım?</a>
+                            <a class="nav-link" href="{% url 'version_info' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Sürüm Notları</a>
                         </div>
                     </div>
                 </div>
@@ -119,7 +121,7 @@
 
                             <div class="row g-3">
 
-                                <div class="form-container mt-4">
+                                <div class="form-container mt-2">
 
                                     <div id="calendar"></div>
 
@@ -196,29 +198,29 @@
                 allDaySlot: false,
                 slotDuration: '24:00:00',
                 dateClick: function (info) {
-            const clickedDate = info.dateStr;
+                    const clickedDate = info.dateStr;
 
-            // AJAX ile verileri çek
-            fetch(`/get-notes/?date=${clickedDate}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const notes = data.notes.map(note => `<li>${note.title}: ${note.content}</li>`).join('');
-                        document.getElementById('modalContent').innerHTML = notes || 'Bu güne ait not bulunamadı.';
-                    } else {
-                        document.getElementById('modalContent').innerHTML = 'Notları alırken bir hata oluştu.';
-                    }
+                    // AJAX ile verileri çek
+                    fetch(`/get-notes/?date=${clickedDate}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const notes = data.notes.map(note => `<li>${note.title}: ${note.content}</li>`).join('');
+                                document.getElementById('modalContent').innerHTML = notes || 'Bu güne ait not bulunamadı.';
+                            } else {
+                                document.getElementById('modalContent').innerHTML = 'Notları alırken bir hata oluştu.';
+                            }
 
-                    // Modal başlığı ve içeriği güncelle
-                    document.getElementById('calendarModalLabel').innerText = `Tarih: ${clickedDate}`;
-                    const modal = new bootstrap.Modal(document.getElementById('calendarModal'));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error('Hata:', error);
-                    document.getElementById('modalContent').innerHTML = 'Veriler alınamadı.';
-                });
-        }
+                            // Modal başlığı ve içeriği güncelle
+                            document.getElementById('calendarModalLabel').innerText = `Tarih: ${clickedDate}`;
+                            const modal = new bootstrap.Modal(document.getElementById('calendarModal'));
+                            modal.show();
+                        })
+                        .catch(error => {
+                            console.error('Hata:', error);
+                            document.getElementById('modalContent').innerHTML = 'Veriler alınamadı.';
+                        });
+                }
             });
 
             calendar.render();

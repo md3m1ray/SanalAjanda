@@ -24,7 +24,7 @@ class UserAdmin(BaseUserAdmin):
         ('Üyelik Durumu', {'fields': (
         'membership_type', 'requested_membership_type', 'requested_duration', 'membership_expiry',
         'is_membership_approved')}),
-        ('Ek Alanlar', {'fields': ('user_type',)}),
+        ('Ek Alanlar', {'fields': ('user_type', 'master_user')}),
         ('Yetkiler', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Önemli Tarihler', {'fields': ('last_login',)}),
     )

@@ -3,15 +3,16 @@
 
 {% block header %}
 
-    <title>{{ index_site_title }} - Şifre Sıfırlama</title>
+    <title>{{ index_site_title }} - Ajanda</title>
     <style>
         .form-container {
-            max-width: 600px;
+
             margin: 0 auto;
             padding: 20px;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
         }
 
         .form-container h2 {
@@ -58,6 +59,25 @@
             opacity: 1;
             text-align: center;
         }
+
+        #calendar {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            #calendar {
+                max-width: 100%;
+                margin: 0 auto;
+                padding: 0;
+            }
+
+            .fc-toolbar {
+                flex-wrap: wrap;
+                text-align: center;
+            }
+        }
+
     </style>
 
 {% endblock %}
@@ -66,73 +86,88 @@
     <section id="password-reset" class="section" style="padding-top: 100px; scroll-margin-top: 98px;
     overflow: clip">
 
-    <!-- Section Title -->
-    <div class="container section-title" data-aos="fade-up">
-        <h2>Şifre Sıfırlama</h2>
-
-    </div><!-- End Section Title -->
-
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Ajanda</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'calendar_view' %}">Ajanda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'list_notes' %}">Notlar</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
     <div class="container" data-aos="fade-up" data-aos-delay="100">
 {% endblock %}
 {% block d_content %}
-    <div class="form-container  mt-5">
-        <h2>Notlarımı Ara/Filtrele</h2>
-        <form method="GET" class="mb-4">
-            <div class="row">
-                <div class="col-md-10">
-                    <input type="text" name="query" class="form-control" placeholder="Notlarda Ara" value="{{ query }}">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <!-- Sidebar -->
+                <div class="col-lg-3 border-end">
+                    <div class="p-4">
+                        <div class="nav flex-column nav-pills">
+                            <a class="nav-link" href="{% url 'note_dashboard' %}"><i class="fas fa-user me-2"></i>Ana
+                                Menü</a>
+                            <a class="nav-link" href="{% url 'calendar_view' %}"><i
+                                    class="fas fa-lock me-2"></i>Takvim / Etkinlik</a>
+                            <a class="nav-link" href="{% url 'list_notes' %}"><i
+                                    class="fas fa-credit-card me-2"></i>Takvim / Not</a>
+                            <a class="nav-link active" href="{% url 'filter_notes' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Not Ara</a>
+                            <a class="nav-link" href="{% url 'how_to_use' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Nasıl Kullanırım?</a>
+                            <a class="nav-link" href="{% url 'version_info' %}"><i
+                                    class="fas fa-chart-line me-2"></i>Sürüm Notları</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary btn-block">Ara</button>
+
+                <div class="col-lg-9">
+                    <div class="p-4">
+                        <div class="mb-4">
+
+                            <div class="row g-3">
+                                <div class="form-container  mt-2">
+                                    <h2>Notlarımı Ara/Filtrele</h2>
+                                    <form method="GET" class="mb-4">
+                                        <div class="row">
+                                            <div class="col-md-10">
+                                                <input type="text" name="query" class="form-control"
+                                                       placeholder="Notlarda Ara" value="{{ query }}">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="submit" class="btn btn-primary btn-block">Ara</button>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    {% if notes %}
+                                        <table class="table">
+                                            <thead>
+                                            <tr>
+                                                <th>Başlık</th>
+                                                <th>Tarih</th>
+                                                <th>Saat</th>
+                                                <th>İşlemler</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for note in notes %}
+                                                <tr>
+                                                    <td>{{ note.title }}</td>
+                                                    <td>{{ note.date }}</td>
+                                                    <td>{{ note.time|default:"-" }}</td>
+                                                    <td>
+                                                        <a href="{% url 'edit_note' note.id %}"
+                                                           class="btn btn-warning btn-sm">Düzenle</a>
+                                                        <a href="{% url 'delete_note' note.id %}"
+                                                           class="btn btn-danger btn-sm">Sil</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>Aramanıza uygun bir not bulunamadı.</p>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </form>
-
-        {% if notes %}
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Başlık</th>
-                    <th>Tarih</th>
-                    <th>Saat</th>
-                    <th>İşlemler</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for note in notes %}
-                    <tr>
-                        <td>{{ note.title }}</td>
-                        <td>{{ note.date }}</td>
-                        <td>{{ note.time|default:"-" }}</td>
-                        <td>
-                            <a href="{% url 'edit_note' note.id %}" class="btn btn-warning btn-sm">Düzenle</a>
-                            <a href="{% url 'delete_note' note.id %}" class="btn btn-danger btn-sm">Sil</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>Aramanıza uygun bir not bulunamadı.</p>
-        {% endif %}
-
-
+        </div>
     </div>
 
     </div>

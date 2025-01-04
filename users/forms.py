@@ -365,7 +365,8 @@ class SecretaryForm(forms.ModelForm):
                 email=full_username,
                 password=make_password(password),
                 is_active=True,
-                user_type='secretary'
+                user_type='secretary',
+                master_user=self.master_user
             )
 
         # Secretary modelini kullanıcıyla ilişkilendir

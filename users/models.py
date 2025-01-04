@@ -53,6 +53,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
     user_type = models.CharField(max_length=10, choices=USER_TYPES, default='master')
 
+    master_user = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='hassecretaries'
+    )
+
     MEMBERSHIP_CHOICES = [
         ('standard', 'Başlangıç'),
         ('premium', 'Gümüş'),

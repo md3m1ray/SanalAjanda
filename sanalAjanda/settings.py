@@ -50,7 +50,7 @@ INSTALLED_APPS += ['django_otp', 'django_otp.plugins.otp_totp', 'django_otp.plug
 MIDDLEWARE += ['django_otp.middleware.OTPMiddleware']
 
 LOGIN_URL = 'two_factor:login'
-LOGIN_REDIRECT_URL = 'profile'
+LOGIN_REDIRECT_URL = 'note_dashboard'
 LOGOUT_REDIRECT_URL = 'index'
 TWO_FACTOR_LOGIN_VIEW = 'two_factor:login'
 TWO_FACTOR_QR_FACTORY = 'qrcode.image.svg.SvgImage'
